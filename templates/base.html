@@ -11,7 +11,15 @@
 <body>
     <header>
         <div class="alert alert-secondary" role="alert">
-            <h1>Articles site</h1>
+            <h1>
+                Articles site
+                {% if current_user.is_authenticated %}
+                    <a href="/logout" class="navbar-brand">@{{ current_user.name }}</a>
+                {% else %}
+                    <a href="/register" class="btn btn-primary">Зарегистрироваться</a>
+                    <a href="/login" class="btn btn-success">Войти</a>
+                {% endif %}
+            </h1>
         </div>
     </header>
     {% block content %}{% endblock %}

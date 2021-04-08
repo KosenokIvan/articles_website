@@ -2,7 +2,7 @@
 
 {% block content %}
   <h1>Регистрация</h1>
-  <form action="" method="post">
+  <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
       {{ form.name.label }}<br>
@@ -60,7 +60,7 @@
     </p>
     <p>
       {{ form.avatar.label }}<br>
-      {{ form.avatar(class="form-control", type="file") }}<br>
+      {{ form.avatar(class="form-control", type="file", accept=".png, .jpg, .jpeg") }}<br>
       {% for error in form.avatar.errors %}
         <p class="alert alert-danger" role="alert">
           {{ error }}

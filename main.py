@@ -1,4 +1,9 @@
-from flask import Flask, render_template, redirect
+from random import choices
+from string import ascii_letters, digits
+import os
+from io import BytesIO
+from PIL import Image
+from flask import Flask, render_template, redirect, request, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from data import db_session
 from data.users import User
@@ -51,6 +56,14 @@ def register():
         user = User(name=form.name.data, surname=form.surname.data,
                     nickname=form.nickname.data, email=form.email.data)
         user.set_password(form.password.data)
+        if form.avatar.data:
+            image = Image.open(BytesIO(form.avatar.data.read()))
+            while True:
+                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
+                if not os.path.exists(f"static/img/avatars/{filename}"):
+                    break
+            image.save(f"static/img/avatars/{filename}")
+            user.avatar = filename
         db_sess.add(user)
         db_sess.commit()
         return redirect("/login")
@@ -60,7 +73,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     template_name = "login.html"
-    title="Авторизация"
+    title = "Авторизация"
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()

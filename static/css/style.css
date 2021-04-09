@@ -2,6 +2,7 @@ h1.main-header {
     display: inline;
 }
 
-.header_link_container {
+.header-link-container {
     float: right;
+    display: inline-block;
 }

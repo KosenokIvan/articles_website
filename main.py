@@ -3,7 +3,7 @@ from string import ascii_letters, digits
 import os
 from io import BytesIO
 from PIL import Image
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, make_response
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from data import db_session
 from data.users import User
@@ -91,6 +91,14 @@ def login():
 @app.route("/")
 def index():
     return render_template("index.html", title="main")
+
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return make_response(
+        render_template("unauthorized.html", title="Недоступно неавторизованным пользователям"),
+        401
+    )
 
 
 if __name__ == '__main__':

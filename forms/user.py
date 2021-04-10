@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
@@ -19,5 +19,6 @@ class RegisterForm(FlaskForm):
     email = EmailField("Почта", validators=[DataRequired()])
     password = PasswordField("Пароль", validators=[DataRequired()])
     password_again = PasswordField("Повторите пароль", validators=[DataRequired()])
+    description = TextAreaField("Описание (не более 4096 символов)")
     avatar = FileField("Аватар", validators=[FileAllowed(["png", "jpg", "jpeg"])])
     submit = SubmitField("Зарегистрироваться")

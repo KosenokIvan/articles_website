@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if user.avatar %}
+        {% set filename = url_for("static", filename=("img/avatars/" + user.avatar)) %}
+    {% else %}
+        {% set filename = url_for("static", filename="img/default_avatar.png") %}
+    {% endif %}
+    <img src="{{ filename }}" alt="" width="48" height="48">@{{ user.nickname }}
+    <p>
+        {% if user.description %}
+            {{ user.description }}
+        {% else %}
+            &lt;Описание отсутствует&gt;
+        {% endif %}
+    </p>
+    <hr>
+    {% for article in user.articles %}
+        {{ article.title }}<br>
+        {% if article.image %}
+            <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
+                 alt="" style="max-width: 50%">
+        {% endif %}
+        <p>{{ article.content }}</p>
+        <hr>
+    {% endfor %}
+{% endblock %}

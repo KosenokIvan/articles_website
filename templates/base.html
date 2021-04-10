@@ -29,14 +29,14 @@
                     <button class="dropdown-toggle" type="button" id="dropButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{{ filename }}" alt="" width="48" height="48">
-                        @{{ current_user.name }}
+                        @{{ current_user.nickname }}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropButton1">
                         <li>
                             <a href="/" class="dropdown-item">На главную</a>
                         </li>
                         <li>
-                            <a href="#" class="dropdown-item disabled" aria-disabled="true" tabindex="-1">Редактировать аккаунт</a>
+                            <a href="/user_page/{{ current_user.id }}" class="dropdown-item">Аккаунт</a>
                         </li>
                         <li>
                             <a href="/logout" class="dropdown-item">Выйти из аккаунта</a>

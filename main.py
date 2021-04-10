@@ -3,11 +3,13 @@ from string import ascii_letters, digits
 import os
 from io import BytesIO
 from PIL import Image
-from flask import Flask, render_template, redirect, request, url_for, make_response
+from flask import Flask, render_template, redirect, request, url_for, make_response, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from data import db_session
 from data.users import User
+from data.articles import Article
 from forms.user import RegisterForm, LoginForm
+from forms.article import ArticleForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -33,6 +35,7 @@ def register():
     template_name = "register.html"
     title = "Регистрация"
     form = RegisterForm()
+    print(f"{request.method=}, {request.json=}, {form.validate_on_submit()=}")
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template(template_name,
@@ -64,6 +67,8 @@ def register():
                     break
             image.save(f"static/img/avatars/{filename}")
             user.avatar = filename
+        if form.description.data:
+            user.description = form.description.data
         db_sess.add(user)
         db_sess.commit()
         return redirect("/login")
@@ -88,6 +93,42 @@ def login():
     return render_template(template_name, title=title, form=form)
 
 
+@app.route("/user_page/<int:user_id>")
+def user_page(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    if not user:
+        abort(404)
+    return render_template("user_page.html", title=f"@{user.nickname}", user=user)
+
+
+@app.route("/article", methods=["GET", "POST"])
+@login_required
+def add_article():
+    template_name = "add_article.html"
+    title = "Добавить статью"
+    form = ArticleForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        article = Article(
+            title=form.title.data,
+            content=form.content.data,
+            user=current_user
+        )
+        if form.image.data:
+            image = Image.open(BytesIO(form.image.data.read()))
+            while True:
+                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
+                if not os.path.exists(f"static/img/articles_images/{filename}"):
+                    break
+            image.save(f"static/img/articles_images/{filename}")
+            article.image = filename
+            db_sess.add(article)
+            db_sess.commit()
+            return redirect(f"/user_page/{current_user.id}")
+    return render_template(template_name, title=title, form=form)
+
+
 @app.route("/")
 def index():
     return render_template("index.html", title="main")
@@ -98,6 +139,13 @@ def unauthorized(error):
     return make_response(
         render_template("unauthorized.html", title="Недоступно неавторизованным пользователям"),
         401
+    )
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return make_response(
+        render_template("page_not_found.html", title="Страница не найдена"), 404
     )
 
 

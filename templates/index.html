@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="col-auto">
-        {% for article in articles_list|sort(attribute="create_date", reverse=true) %}
+        {% for article in articles_list %}
             {{ article_card(article) }}
         {% endfor %}
         {% set page_links_count = 9 %} {# Обязательно нечётное число!!! #}

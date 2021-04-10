@@ -132,7 +132,7 @@ def add_article():
 @app.route("/page<int:page_index>")
 def index(page_index=1):
     db_sess = db_session.create_session()
-    response = db_sess.query(Article)
+    response = db_sess.query(Article).order_by(Article.create_date.desc())
     all_articles_count = response.count()
     articles_count = 10
     max_page_index = max((all_articles_count // articles_count +

@@ -6,3 +6,7 @@ h1.main-header {
     float: right;
     display: inline-block;
 }
+
+.preserve-line-breaks {
+    white-space: pre-wrap;
+}

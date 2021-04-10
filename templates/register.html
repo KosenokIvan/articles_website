@@ -4,8 +4,8 @@
     <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="col-auto mb-3">
-            {{ form.name.label }}<br>
-            {{ form.name(class="form-control", type="text") }}<br>
+            {{ form.name.label }}
+            {{ form.name(class="form-control", type="text", maxlength="64") }}
             {% for error in form.name.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}
@@ -13,8 +13,8 @@
             {% endfor %}
         </div>
         <div class="col-auto mb-3">
-            {{ form.surname.label }}<br>
-            {{ form.surname(class="form-control", type="text") }}<br>
+            {{ form.surname.label }}
+            {{ form.surname(class="form-control", type="text", maxlength="64") }}
             {% for error in form.surname.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}
@@ -25,7 +25,7 @@
             {{ form.nickname.label() }}
             <div class="input-group">
                 <span class="input-group-text">@</span>
-                {{ form.nickname(class="form-control", type="text") }}<br>
+                {{ form.nickname(class="form-control", type="text", maxlength="24") }}
                 {% for error in form.nickname.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
@@ -35,8 +35,9 @@
         </div>
         <div class="col-auto mb-3">
             {{ form.email.label }}
-            {{ form.email(class="form-control", type="email", aria_describedby="emailHelp") }}
-            <div class="form-text" id="emailHelp">
+            {{ form.email(class="form-control", type="email", aria_describedby="emailHelp",
+                          maxlength="128") }}
+            <div class="form-text text-muted" id="emailHelp">
                 Используется только для авторизации и не отображается на странице
             </div>
             {% for error in form.email.errors %}
@@ -46,8 +47,8 @@
             {% endfor %}
         </div>
         <div class="col-auto mb-3">
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control", type="password") }}<br>
+            {{ form.password.label }}
+            {{ form.password(class="form-control", type="password") }}
             {% for error in form.password.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}
@@ -55,8 +56,8 @@
             {% endfor %}
         </div>
         <div class="col-auto mb-3">
-            {{ form.password_again.label }}<br>
-            {{ form.password_again(class="form-control", type="password") }}<br>
+            {{ form.password_again.label }}
+            {{ form.password_again(class="form-control", type="password") }}
             {% for error in form.password_again.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}

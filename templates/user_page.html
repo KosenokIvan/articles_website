@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "widgets.html" import article_card %}
 
 {% block content %}
     {% if user.avatar %}
@@ -6,22 +7,22 @@
     {% else %}
         {% set filename = url_for("static", filename="img/default_avatar.png") %}
     {% endif %}
-    <img src="{{ filename }}" alt="" width="48" height="48">@{{ user.nickname }}
-    <p>
+    <h3 class="col-auto">
+        <img src="{{ filename }}" alt="" width="48" height="48"> @{{ user.nickname }}
+    </h3>
+    <p class="col-auto">
         {% if user.description %}
             {{ user.description }}
         {% else %}
             &lt;Описание отсутствует&gt;
         {% endif %}
     </p>
-    <hr>
-    {% for article in user.articles %}
-        {{ article.title }}<br>
-        {% if article.image %}
-            <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
-                 alt="" style="max-width: 50%">
-        {% endif %}
-        <p>{{ article.content }}</p>
+    {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
+        {{ article_card(article) }}
+    {% else %}
         <hr>
+        <p class="col-auto">
+            Этот пользователь не опубликовал ни одной статьи
+        </p>
     {% endfor %}
 {% endblock %}

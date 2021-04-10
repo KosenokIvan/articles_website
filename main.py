@@ -35,7 +35,6 @@ def register():
     template_name = "register.html"
     title = "Регистрация"
     form = RegisterForm()
-    print(f"{request.method=}, {request.json=}, {form.validate_on_submit()=}")
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template(template_name,
@@ -113,7 +112,7 @@ def add_article():
         article = Article(
             title=form.title.data,
             content=form.content.data,
-            user=current_user
+            author=current_user.id
         )
         if form.image.data:
             image = Image.open(BytesIO(form.image.data.read()))
@@ -123,9 +122,9 @@ def add_article():
                     break
             image.save(f"static/img/articles_images/{filename}")
             article.image = filename
-            db_sess.add(article)
-            db_sess.commit()
-            return redirect(f"/user_page/{current_user.id}")
+        db_sess.add(article)
+        db_sess.commit()
+        return redirect(f"/user_page/{current_user.id}")
     return render_template(template_name, title=title, form=form)
 
 

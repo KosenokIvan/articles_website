@@ -1,5 +1,53 @@
 {% extends "base.html" %}
+{% from "widgets.html" import article_card %}
 
 {% block content %}
-    First page of website
+    <div class="col-auto">
+        {% for article in articles_list|sort(attribute="create_date", reverse=true) %}
+            {{ article_card(article) }}
+        {% endfor %}
+        {% set page_links_count = 9 %} {# Обязательно нечётное число!!! #}
+        <ul class="pagination">
+            {% if max_page_index <= page_links_count %}
+                {% set min_link_index = 1 %}
+                {% set max_link_index = max_page_index %}
+            {% else %}
+                {% if page_index <= page_links_count // 2 + 1 %}
+                    {% set min_link_index = 1 %}
+                    {% set max_link_index = page_links_count %}
+                {% elif max_page_index - page_index + 1 <= page_links_count // 2 + 1 %}
+                    {% set min_link_index = max_page_index - page_links_count + 1 %}
+                    {% set max_link_index = max_page_index %}
+                {% else %}
+                    {% set min_link_index = page_index - page_links_count // 2 %}
+                    {% set max_link_index = page_index + page_links_count // 2 %}
+                {% endif %}
+            {% endif %}
+            {% if min_link_index > 1 %}
+                <li class="page-item">
+                    <a href="/page1" class="page-link">First</a>
+                </li>
+            {% endif %}
+            {% if page_index > 1 %}
+                <li class="page-item">
+                    <a href="/page{{ page_index - 1 }}" class="page-link">&laquo;</a>
+                </li>
+            {% endif %}
+            {% for i in range(min_link_index, max_link_index + 1) %}
+                <li class="page-item {% if i == page_index %}disabled{% endif %}">
+                    <a href="/page{{ i }}" class="page-link">{{ i }}</a>
+                </li>
+            {% endfor %}
+            {% if page_index < max_page_index %}
+                <li class="page-item">
+                    <a href="/page{{ page_index + 1 }}" class="page-link">&raquo;</a>
+                </li>
+            {% endif %}
+            {% if max_link_index < max_page_index %}
+                <li class="page-item">
+                    <a href="/page{{ max_page_index }}" class="page-link">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 {% endblock %}

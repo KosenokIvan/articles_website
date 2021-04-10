@@ -7,22 +7,27 @@
     {% else %}
         {% set filename = url_for("static", filename="img/default_avatar.png") %}
     {% endif %}
-    <h3 class="col-auto">
-        <img src="{{ filename }}" alt="" width="48" height="48"> @{{ user.nickname }}
-    </h3>
-    <p class="col-auto">
-        {% if user.description %}
-            {{ user.description }}
-        {% else %}
-            &lt;Описание отсутствует&gt;
-        {% endif %}
-    </p>
-    {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
-        {{ article_card(article) }}
-    {% else %}
-        <hr>
-        <p class="col-auto">
-            Этот пользователь не опубликовал ни одной статьи
+    <div class="col-auto">
+        <h3>
+            <img src="{{ filename }}" alt="" width="48" height="48"> @{{ user.nickname }}
+        </h3>
+        <p>
+            {% if user.description %}
+                {{ user.description }}
+            {% else %}
+                &lt;Описание отсутствует&gt;
+            {% endif %}
         </p>
-    {% endfor %}
+        {% if current_user == user %}
+            <a href="/article" class="btn btn-primary">Добавить статью</a>
+        {% endif %}
+        {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
+            {{ article_card(article) }}
+        {% else %}
+            <hr>
+            <p class="col-auto">
+                Этот пользователь не опубликовал ни одной статьи
+            </p>
+        {% endfor %}
+    </div>
 {% endblock %}

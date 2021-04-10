@@ -129,8 +129,19 @@ def add_article():
 
 
 @app.route("/")
-def index():
-    return render_template("index.html", title="main")
+@app.route("/page<int:page_index>")
+def index(page_index=1):
+    db_sess = db_session.create_session()
+    response = db_sess.query(Article)
+    all_articles_count = response.count()
+    articles_count = 10
+    max_page_index = max((all_articles_count // articles_count +
+                          (0 if all_articles_count % articles_count == 0 else 1)), 1)
+    if page_index > max_page_index:
+        abort(404)
+    articles = response.slice((page_index - 1) * articles_count, page_index * articles_count)
+    return render_template("index.html", title="main", articles_list=articles,
+                           page_index=page_index, max_page_index=max_page_index)
 
 
 @app.errorhandler(401)

@@ -1,5 +1,6 @@
 {% macro article_card(article) %}
-    <div class="card col-auto">
+    <div class="card col-auto"
+         style="margin-top: 5px; margin-bottom: 5px; padding-top: 5px; padding-bottom: 5px;">
         {% if article.user.avatar %}
             {% set filename = url_for("static", filename=("img/avatars/" + article.user.avatar)) %}
         {% else %}
@@ -11,7 +12,7 @@
         <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date }}</h6>
         {% if article.image %}
             <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
-                 alt="" style="max-width: 40%">
+                 alt="" style="max-width: 40%" class="card-img-top">
         {% endif %}
         <div class="cart-body">
             <p class="card-text preserve-line-breaks">{{ article.content|truncate(255) }}</p>

@@ -11,6 +11,7 @@ from data.articles import Article
 from forms.user import RegisterForm, LoginForm, EditUserForm
 from forms.article import ArticleForm
 from model_workers.user import UserModelWorker
+from model_workers.article import ArticleModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError
 
@@ -83,7 +84,8 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template(template_name, form=form,
+        return render_template(template_name,
+                               form=form,
                                message="Неправильный логин или пароль",
                                message_class="alert-danger")
     return render_template(template_name, title=title, form=form)
@@ -117,19 +119,27 @@ def edit_user():
                 "new_password_again": form.new_password_again.data
             })
         except IncorrectPasswordError:
-            return render_template(template_name, title=title, form=form,
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
                                    message="Неверный пароль",
                                    message_class="alert-danger")
         except UserAlreadyExistError:
-            return render_template(template_name, title=title, form=form,
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
                                    message="Такой пользователь уже есть",
                                    message_class="alert-danger")
         except EmailAlreadyUseError:
-            return render_template(template_name, title=title, form=form,
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
                                    message="Почта уже используется",
                                    message_class="alert-danger")
         except PasswordMismatchError:
-            return render_template(template_name, title=title, form=form,
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
                                    message="Пароли не совпадают",
                                    message_class="alert-danger")
         return redirect(f"/user_page/{user.id}")
@@ -152,22 +162,12 @@ def add_article():
     title = "Добавить статью"
     form = ArticleForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        article = Article(
-            title=form.title.data,
-            content=form.content.data,
-            author=current_user.id
-        )
-        if form.image.data:
-            image = Image.open(BytesIO(form.image.data.read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/articles_images/{filename}"):
-                    break
-            image.save(f"static/img/articles_images/{filename}")
-            article.image = filename
-        db_sess.add(article)
-        db_sess.commit()
+        ArticleModelWorker.new_article({
+            "title": form.title.data,
+            "content": form.content.data,
+            "author": current_user.id,
+            "image": form.image.data
+        })
         return redirect(f"/user_page/{current_user.id}")
     return render_template(template_name, title=title, form=form)
 

@@ -19,8 +19,10 @@ class UserModelWorker:
             raise EmailAlreadyUseError
         if db_sess.query(User).filter(User.nickname == user_data["nickname"]).first():
             raise UserAlreadyExistError
-        user = User(name=user_data["name"], surname=user_data["surname"],
-                    nickname=user_data["nickname"], email=user_data["email"])
+        user = User(name=user_data["name"],
+                    surname=user_data["surname"],
+                    nickname=user_data["nickname"],
+                    email=user_data["email"])
         user.set_password(user_data["password"])
         if user_data["avatar"]:
             image = Image.open(BytesIO(user_data["avatar"].read()))
@@ -28,7 +30,6 @@ class UserModelWorker:
                 filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
                 if not os.path.exists(f"static/img/avatars/{filename}"):
                     break
-            print(os.getcwd())
             image.save(f"static/img/avatars/{filename}")
             user.avatar = filename
         if user_data["description"]:

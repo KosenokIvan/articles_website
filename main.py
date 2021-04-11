@@ -147,12 +147,24 @@ def edit_user():
 
 
 @app.route("/user_page/<int:user_id>")
-def user_page(user_id):
+@app.route("/user_page/<int:user_id>/page<int:page_index>")
+def user_page(user_id, page_index=1):
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
     if not user:
         abort(404)
-    return render_template("user_page.html", title=f"@{user.nickname}", user=user)
+    articles_count = 10
+    user_articles_count = len(user.articles)
+    max_page_index = max((user_articles_count // articles_count +
+                          (0 if user_articles_count % articles_count == 0 else 1)), 1)
+    if page_index > max_page_index:
+        abort(404)
+    articles = sorted(user.articles, key=lambda x: x.create_date, reverse=True)[
+               (page_index - 1) * articles_count:page_index * articles_count
+               ]
+    return render_template("user_page.html", title=f"@{user.nickname}", user=user,
+                           articles_list=articles, page_index=page_index,
+                           max_page_index=max_page_index)
 
 
 @app.route("/article", methods=["GET", "POST"])

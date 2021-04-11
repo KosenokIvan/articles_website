@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macro.html" import article_card, avatar_filename %}
+{% from "macro.html" import article_card, avatar_filename, pagination_widget %}
 
 {% block content %}
     <div class="col-auto">
@@ -11,13 +11,18 @@
             <a href="/article" class="btn btn-primary">Добавить статью</a>
             <a href="/edit_user" class="btn btn-secondary">Редактировать аккаунт</a>
         {% endif %}
-        {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
+        <hr>
+        {% set page_links_count = 9 %} {# Обязательно нечётное число!!! #}
+        {% set link_format = "/user_page/" + user.id|string + "/page$i" %}
+        {# "$i" заменяется на индекс страницы #}
+        {{ pagination_widget(page_index, max_page_index, page_links_count, link_format) }}
+        {% for article in articles_list %}
             {{ article_card(article, current_user) }}
         {% else %}
-            <hr>
             <p class="col-auto">
                 Этот пользователь не опубликовал ни одной статьи
             </p>
         {% endfor %}
+        {{ pagination_widget(page_index, max_page_index, page_links_count, link_format) }}
     </div>
 {% endblock %}

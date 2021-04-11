@@ -10,6 +10,9 @@ from data.users import User
 from data.articles import Article
 from forms.user import RegisterForm, LoginForm, EditUserForm
 from forms.article import ArticleForm
+from model_workers.user import UserModelWorker
+from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
+    UserAlreadyExistError, IncorrectPasswordError
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -36,40 +39,35 @@ def register():
     title = "Регистрация"
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
+        try:
+            UserModelWorker.new_user({
+                "name": form.name.data,
+                "surname": form.surname.data,
+                "nickname": form.nickname.data,
+                "email": form.email.data,
+                "password": form.password.data,
+                "password_again": form.password_again.data,
+                "description": form.description.data,
+                "avatar": form.avatar.data
+            })
+        except PasswordMismatchError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Пароли не совпадают",
                                    message_class="alert-danger")
-        db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
+        except EmailAlreadyUseError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Почта уже используется",
                                    message_class="alert-danger")
-        if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
+        except UserAlreadyExistError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Такой пользователь уже есть",
                                    message_class="alert-danger")
-        user = User(name=form.name.data, surname=form.surname.data,
-                    nickname=form.nickname.data, email=form.email.data)
-        user.set_password(form.password.data)
-        if form.avatar.data:
-            image = Image.open(BytesIO(form.avatar.data.read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/avatars/{filename}"):
-                    break
-            image.save(f"static/img/avatars/{filename}")
-            user.avatar = filename
-        if form.description.data:
-            user.description = form.description.data
-        db_sess.add(user)
-        db_sess.commit()
         return redirect("/login")
     return render_template(template_name, title=title, form=form)
 
@@ -85,8 +83,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template(template_name,
-                               form=form,
+        return render_template(template_name, form=form,
                                message="Неправильный логин или пароль",
                                message_class="alert-danger")
     return render_template(template_name, title=title, form=form)
@@ -107,38 +104,34 @@ def edit_user():
         form.email.data = user.email
         form.description.data = user.description
     if form.validate_on_submit():
-        if not user.check_password(form.password.data):
+        try:
+            UserModelWorker.edit_user(user.id, {
+                "name": form.name.data,
+                "surname": form.surname.data,
+                "nickname": form.nickname.data,
+                "email": form.email.data,
+                "description": form.description.data,
+                "avatar": form.avatar.data,
+                "password": form.password.data,
+                "new_password": form.new_password.data,
+                "new_password_again": form.new_password_again.data
+            })
+        except IncorrectPasswordError:
             return render_template(template_name, title=title, form=form,
-                                   message="Неверный пароль", message_class="alert-danger")
-        if db_sess.query(User).filter(User.nickname == form.nickname.data,
-                                      User.id != user.id).first():
+                                   message="Неверный пароль",
+                                   message_class="alert-danger")
+        except UserAlreadyExistError:
             return render_template(template_name, title=title, form=form,
                                    message="Такой пользователь уже есть",
                                    message_class="alert-danger")
-        if db_sess.query(User).filter(User.email == form.email.data, User.id != user.id).first():
+        except EmailAlreadyUseError:
             return render_template(template_name, title=title, form=form,
                                    message="Почта уже используется",
                                    message_class="alert-danger")
-        if form.new_password.data:
-            if form.new_password.data != form.new_password_again.data:
-                return render_template(template_name, title=title, form=form,
-                                       message="Пароли не совпадают", message_class="alert-danger")
-            user.set_password(form.new_password.data)
-        user.name = form.name.data
-        user.surname = form.surname.data
-        user.nickname = form.nickname.data
-        user.email = form.email.data
-        user.description = form.description.data
-        if form.avatar.data:
-            image = Image.open(BytesIO(form.avatar.data.read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/avatars/{filename}"):
-                    break
-            os.remove(f"static/img/avatars/{user.avatar}")
-            user.avatar = filename
-            image.save(f"static/img/avatars/{user.avatar}")
-        db_sess.commit()
+        except PasswordMismatchError:
+            return render_template(template_name, title=title, form=form,
+                                   message="Пароли не совпадают",
+                                   message_class="alert-danger")
         return redirect(f"/user_page/{user.id}")
     return render_template(template_name, title=title, form=form)
 

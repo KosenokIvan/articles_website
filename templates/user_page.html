@@ -6,13 +6,7 @@
         <h3>
             <img src="{{ avatar_filename(user) }}" alt="" width="48" height="48"> @{{ user.nickname }}
         </h3>
-        <p>
-            {% if user.description %}
-                {{ user.description }}
-            {% else %}
-                &lt;Описание отсутствует&gt;
-            {% endif %}
-        </p>
+        <p class="preserve-line-breaks">{% if user.description %}{{ user.description }}{% else %}&lt;Описание отсутствует&gt;{% endif %}</p>
         {% if current_user == user %}
             <a href="/article" class="btn btn-primary">Добавить статью</a>
             <a href="/edit_user" class="btn btn-secondary">Редактировать аккаунт</a>

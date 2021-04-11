@@ -8,7 +8,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from data import db_session
 from data.users import User
 from data.articles import Article
-from forms.user import RegisterForm, LoginForm
+from forms.user import RegisterForm, LoginForm, EditUserForm
 from forms.article import ArticleForm
 
 app = Flask(__name__)
@@ -89,6 +89,57 @@ def login():
                                form=form,
                                message="Неправильный логин или пароль",
                                message_class="alert-danger")
+    return render_template(template_name, title=title, form=form)
+
+
+@app.route("/edit_user", methods=["GET", "POST"])
+@login_required
+def edit_user():
+    template_name = "edit_user.html"
+    title = "Редактировать аккаунт"
+    form = EditUserForm()
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
+    if request.method == "GET":
+        form.name.data = user.name
+        form.surname.data = user.surname
+        form.nickname.data = user.nickname
+        form.email.data = user.email
+        form.description.data = user.description
+    if form.validate_on_submit():
+        if not user.check_password(form.password.data):
+            return render_template(template_name, title=title, form=form,
+                                   message="Неверный пароль", message_class="alert-danger")
+        if db_sess.query(User).filter(User.nickname == form.nickname.data,
+                                      User.id != user.id).first():
+            return render_template(template_name, title=title, form=form,
+                                   message="Такой пользователь уже есть",
+                                   message_class="alert-danger")
+        if db_sess.query(User).filter(User.email == form.email.data, User.id != user.id).first():
+            return render_template(template_name, title=title, form=form,
+                                   message="Почта уже используется",
+                                   message_class="alert-danger")
+        if form.new_password.data:
+            if form.new_password.data != form.new_password_again.data:
+                return render_template(template_name, title=title, form=form,
+                                       message="Пароли не совпадают", message_class="alert-danger")
+            user.set_password(form.new_password.data)
+        user.name = form.name.data
+        user.surname = form.surname.data
+        user.nickname = form.nickname.data
+        user.email = form.email.data
+        user.description = form.description.data
+        if form.avatar.data:
+            image = Image.open(BytesIO(form.avatar.data.read()))
+            while True:
+                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
+                if not os.path.exists(f"static/img/avatars/{filename}"):
+                    break
+            os.remove(f"static/img/avatars/{user.avatar}")
+            user.avatar = filename
+            image.save(f"static/img/avatars/{user.avatar}")
+        db_sess.commit()
+        return redirect(f"/user_page/{user.id}")
     return render_template(template_name, title=title, form=form)
 
 

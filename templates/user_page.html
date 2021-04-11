@@ -1,15 +1,10 @@
 {% extends "base.html" %}
-{% from "widgets.html" import article_card %}
+{% from "macro.html" import article_card, avatar_filename %}
 
 {% block content %}
-    {% if user.avatar %}
-        {% set filename = url_for("static", filename=("img/avatars/" + user.avatar)) %}
-    {% else %}
-        {% set filename = url_for("static", filename="img/default_avatar.png") %}
-    {% endif %}
     <div class="col-auto">
         <h3>
-            <img src="{{ filename }}" alt="" width="48" height="48"> @{{ user.nickname }}
+            <img src="{{ avatar_filename(user) }}" alt="" width="48" height="48"> @{{ user.nickname }}
         </h3>
         <p>
             {% if user.description %}
@@ -20,6 +15,7 @@
         </p>
         {% if current_user == user %}
             <a href="/article" class="btn btn-primary">Добавить статью</a>
+            <a href="/edit_user" class="btn btn-secondary">Редактировать аккаунт</a>
         {% endif %}
         {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
             {{ article_card(article) }}

@@ -22,3 +22,16 @@ class RegisterForm(FlaskForm):
     description = TextAreaField("Описание (не более 4096 символов)")
     avatar = FileField("Аватар", validators=[FileAllowed(["png", "jpg", "jpeg"])])
     submit = SubmitField("Зарегистрироваться")
+
+
+class EditUserForm(FlaskForm):
+    name = StringField("Имя", validators=[DataRequired()])
+    surname = StringField("Фамилия", validators=[DataRequired()])
+    nickname = StringField("Никнейм", validators=[DataRequired()])
+    email = EmailField("Почта", validators=[DataRequired()])
+    new_password = PasswordField("Новый пароль")
+    new_password_again = PasswordField("Повторите пароль")
+    description = TextAreaField("Описание (не более 4096 символов)")
+    avatar = FileField("Аватар", validators=[FileAllowed(["png", "jpg", "jpeg"])])
+    password = PasswordField("Текущий пароль", validators=[DataRequired()])
+    submit = SubmitField("Подтвердить")

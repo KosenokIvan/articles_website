@@ -1,3 +1,5 @@
+{% from "macro.html" import avatar_filename %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,18 +19,10 @@
         <div class="alert alert-secondary">
             <h1 class="main-header">Articles site</h1>
             {% if current_user.is_authenticated %}
-                {% if current_user.avatar %}
-                    {% set filename = url_for(
-                    "static",
-                    filename=("img/avatars/" + current_user.avatar)
-                            ) %}
-                {% else %}
-                    {% set filename = url_for("static", filename="img/default_avatar.png") %}
-                {% endif %}
                 <div class="header-link-container dropdown">
                     <button class="dropdown-toggle" type="button" id="dropButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{{ filename }}" alt="" width="48" height="48">
+                        <img src="{{ avatar_filename(current_user) }}" alt="" width="48" height="48">
                         @{{ current_user.nickname }}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropButton1">

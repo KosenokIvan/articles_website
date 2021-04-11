@@ -12,7 +12,7 @@
             <a href="/edit_user" class="btn btn-secondary">Редактировать аккаунт</a>
         {% endif %}
         {% for article in user.articles|sort(attribute="create_date", reverse=true) %}
-            {{ article_card(article) }}
+            {{ article_card(article, current_user) }}
         {% else %}
             <hr>
             <p class="col-auto">

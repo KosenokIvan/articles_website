@@ -13,7 +13,7 @@ from forms.article import ArticleForm
 from model_workers.user import UserModelWorker
 from model_workers.article import ArticleModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError
+    UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -172,6 +172,47 @@ def add_article():
     return render_template(template_name, title=title, form=form)
 
 
+@app.route("/edit_article/<int:article_id>", methods=["GET", "POST"])
+@login_required
+def edit_article(article_id):
+    template_name = "add_article.html"
+    title = "Редактировать статью"
+    form = ArticleForm()
+    db_sess = db_session.create_session()
+    article = db_sess.query(Article).get(article_id)
+    if not article:
+        abort(404)
+    if article.user != current_user:
+        abort(403)
+    if request.method == "GET":
+        form.title.data = article.title
+        form.content.data = article.content
+    if form.validate_on_submit():
+        try:
+            ArticleModelWorker.edit_article(article_id, {
+                "title": form.title.data,
+                "content": form.content.data,
+                "image": form.image.data
+            })
+        except ArticleNotFoundError:
+            abort(404)
+        return redirect(f"/")
+    return render_template(template_name, title=title, form=form)
+
+
+@app.route("/delete_article/<int:article_id>", methods=["GET", "POST"])
+@login_required
+def delete_article(article_id):
+    db_sess = db_session.create_session()
+    article = db_sess.query(Article).get(article_id)
+    if not article:
+        abort(404)
+    if article.user != current_user:
+        abort(403)
+    ArticleModelWorker.delete_article(article_id)
+    return redirect("/")
+
+
 @app.route("/")
 @app.route("/page<int:page_index>")
 def index(page_index=1):
@@ -196,10 +237,19 @@ def unauthorized(error):
     )
 
 
+@app.errorhandler(403)
+def forbidden(error):
+    return make_response(
+        render_template("forbidden.html", title="Запрещенно"),
+        403
+    )
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return make_response(
-        render_template("page_not_found.html", title="Страница не найдена"), 404
+        render_template("page_not_found.html", title="Страница не найдена"),
+        404
     )
 
 

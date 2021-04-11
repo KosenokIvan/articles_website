@@ -66,7 +66,8 @@ class UserModelWorker:
                 filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
                 if not os.path.exists(f"static/img/avatars/{filename}"):
                     break
-            os.remove(f"static/img/avatars/{user.avatar}")
+            if user.avatar:
+                os.remove(f"static/img/avatars/{user.avatar}")
             user.avatar = filename
             image.save(f"static/img/avatars/{user.avatar}")
         db_sess.commit()

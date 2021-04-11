@@ -12,3 +12,7 @@ class UserAlreadyExistError(Exception):
 
 class IncorrectPasswordError(Exception):
     pass
+
+
+class ArticleNotFoundError(Exception):
+    pass

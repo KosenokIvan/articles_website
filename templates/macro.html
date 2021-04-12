@@ -7,28 +7,49 @@
 {% endmacro %}
 
 {% macro article_card(article, current_user) %}
-    <div class="card col-auto article-card">
-        <h4 class="card-title">
-            <img src="{{ avatar_filename(article.user) }}" alt="" width="48" height="48">
-            <a href="/user_page/{{ article.author }}">@{{ article.user.nickname }}</a>
-            {{ article.title }}
-            {% if current_user == article.user %}
-                <span style="float: right">
-                    <a href="/edit_article/{{ article.id }}"
-                       class="btn btn-warning">Изменить статью</a>
-                    <a href="/delete_article/{{ article.id }}"
-                       class="btn btn-danger">Удалить статью</a>
-                </span>
-            {% endif %}
-        </h4>
-        <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date|string|truncate(16, true, end="") }}</h6>
+    <div class="card article-card">
+        <div class="card-header">
+            <h4 class="card-title">
+                <img src="{{ avatar_filename(article.user) }}" alt="" width="48" height="48">
+                <a href="/user_page/{{ article.author }}">@{{ article.user.nickname }}</a>
+                {{ article.title }}
+                {% if current_user == article.user %}
+                    <span style="float: right">
+                        <a href="/edit_article/{{ article.id }}"
+                           class="btn btn-warning">Изменить статью</a>
+                        <a href="/delete_article/{{ article.id }}"
+                           class="btn btn-danger">Удалить статью</a>
+                    </span>
+                {% endif %}
+            </h4>
+            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date|string|truncate(16, true, end="") }}</h6>
+        </div>
         {% if article.image %}
             <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
                  alt="" style="max-width: 40%" class="card-img-top">
         {% endif %}
-        <div class="cart-body">
+        <div class="card-body">
             <p class="card-text preserve-line-breaks">{{ article.content|truncate(255) }}</p>
-            <a href="/article/{{ article.id }}" class="card-link preserve-line-breaks">Перейти к статье</a>
+            <a href="/article/{{ article.id }}" class="card-link">Перейти к статье</a>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro comment_card(comment, current_user) %}
+    <div class="card comment-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <img src="{{ avatar_filename(comment.user) }}" alt="" width="48" height="48">
+                <a href="/user_page/{{ comment.author }}">@{{ comment.user.nickname }}</a>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ comment.create_date|string|truncate(16, true, end="") }}</h6>
+        </div>
+        {% if comment.image %}
+            <img src="{{ url_for('static', filename='img/comments_images/' + comment.image) }}"
+                 alt="" style="max-width: 25%" class="card-img-top">
+        {% endif %}
+        <div class="card-body">
+            <p class="card-text preserve-line-breaks">{{ comment.text }}</p>
         </div>
     </div>
 {% endmacro %}

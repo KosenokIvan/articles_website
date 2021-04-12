@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macro.html" import comment_card %}
 
 {% block content %}
     <div class="col-auto">
@@ -38,8 +39,8 @@
                     {% endfor %}
                 </div>
                 <div class="col-auto mb-3">
-                    {{ form.image.label(class="form-label") }}
-                    {{ form.image(type="file", accept=".png, .jpg, .jpeg", class="form-control") }}
+                    {{ form.image.label(class="form-label") }}<br>
+                    {{ form.image(type="file", accept=".png, .jpg, .jpeg") }}
                     {% for error in form.image.errors %}
                         <p class="alert alert-danger" role="alert">
                             {{ error }}
@@ -51,10 +52,8 @@
             </form>
             <hr>
         {% endif %}
-        {% for comment in article.comments %}
-            <hr>
-            <p class="preserve-line-breaks">{{ comment.text }}</p>
-            <hr>
+        {% for comment in article.comments|sort(attribute="create_date", reverse=True) %}
+            {{ comment_card(comment, current_user) }}
         {% else %}
             &lt;Комментарии отсутствуют&gt;
         {% endfor %}

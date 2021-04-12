@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="col-auto">
+        <h4>
+            <img src="{{ avatar_filename(article.user) }}" alt="" width="48" height="48">
+            <a href="/user_page/{{ article.author }}">@{{ article.user.nickname }}</a>
+            {{ article.title }}
+            {% if current_user == article.user %}
+                <span style="float: right">
+                    <a href="/edit_article/{{ article.id }}"
+                       class="btn btn-warning">Изменить статью</a>
+                    <a href="/delete_article/{{ article.id }}"
+                       class="btn btn-danger">Удалить статью</a>
+                </span>
+            {% endif %}
+        </h4>
+        <h6 class="text-muted">Опубликовано {{ article.create_date|string|truncate(16, true, end="") }}</h6>
+        {% if article.image %}
+            <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
+                 alt="" style="max-width: 40%" class="card-img-top">
+        {% endif %}
+        <div>
+            <p class="preserve-line-breaks">{{ article.content }}</p>
+        </div>
+        {% if current_user.is_authenticated %}
+            <hr>
+            <form action="" method="post" enctype="multipart/form-data" id="commentForm">
+                {{ form.hidden_tag() }}
+                <div class="col-auto mb-3">
+                    {{ form.text.label }}
+                    {{ form.text(class="form-control", maxlength="255",
+                                 style="resize: none;", rows="4") }}
+                    {% for error in form.text.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+                <div class="col-auto mb-3">
+                    {{ form.image.label(class="form-label") }}
+                    {{ form.image(type="file", accept=".png, .jpg, .jpeg", class="form-control") }}
+                    {% for error in form.image.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                </div>
+                <div class="col-auto mb-3">{{ form.submit(type="submit", class="btn btn-primary") }}</div>
+                <div class="alert {{ message_class }}" role="alert">{{ message }}</div>
+            </form>
+            <hr>
+        {% endif %}
+        {% for comment in article.comments %}
+            <hr>
+            <p class="preserve-line-breaks">{{ comment.text }}</p>
+            <hr>
+        {% else %}
+            &lt;Комментарии отсутствуют&gt;
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -2,11 +2,14 @@ from random import choices
 from string import ascii_letters, digits
 import os
 from io import BytesIO
+from datetime import datetime
 from PIL import Image
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError
+from tools.get_image_path import get_image_path
+from tools.constants import USERS_AVATARS_DIR
 
 
 class UserModelWorker:
@@ -26,11 +29,8 @@ class UserModelWorker:
         user.set_password(user_data["password"])
         if user_data["avatar"]:
             image = Image.open(BytesIO(user_data["avatar"].read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/avatars/{filename}"):
-                    break
-            image.save(f"static/img/avatars/{filename}")
+            filename = get_image_path(USERS_AVATARS_DIR)
+            image.save(f"{USERS_AVATARS_DIR}/{filename}")
             user.avatar = filename
         if user_data["description"]:
             user.description = user_data["description"]
@@ -60,14 +60,12 @@ class UserModelWorker:
         user.nickname = user_data["nickname"]
         user.email = user_data["email"]
         user.description = user_data["description"]
+        user.modified_date = datetime.now()
         if user_data["avatar"]:
             image = Image.open(BytesIO(user_data["avatar"].read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/avatars/{filename}"):
-                    break
+            filename = get_image_path(USERS_AVATARS_DIR)
             if user.avatar:
-                os.remove(f"static/img/avatars/{user.avatar}")
+                os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
             user.avatar = filename
-            image.save(f"static/img/avatars/{user.avatar}")
+            image.save(f"{USERS_AVATARS_DIR}/{user.avatar}")
         db_sess.commit()

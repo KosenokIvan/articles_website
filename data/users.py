@@ -19,6 +19,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String(4096), nullable=True)
     articles = orm.relation("Article", back_populates="user")
+    comments = orm.relation("Comment", back_populates="user")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

@@ -6,6 +6,8 @@ from PIL import Image
 from data.articles import Article
 from data import db_session
 from tools.errors import ArticleNotFoundError
+from tools.get_image_path import get_image_path
+from tools.constants import ARTICLES_IMAGES_DIR
 
 
 class ArticleModelWorker:
@@ -19,11 +21,8 @@ class ArticleModelWorker:
         )
         if article_data["image"]:
             image = Image.open(BytesIO(article_data["image"].read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/articles_images/{filename}"):
-                    break
-            image.save(f"static/img/articles_images/{filename}")
+            filename = get_image_path(ARTICLES_IMAGES_DIR)
+            image.save(f"{ARTICLES_IMAGES_DIR}/{filename}")
             article.image = filename
         db_sess.add(article)
         db_sess.commit()
@@ -38,13 +37,10 @@ class ArticleModelWorker:
         article.content = article_data["content"]
         if article_data["image"]:
             image = Image.open(BytesIO(article_data["image"].read()))
-            while True:
-                filename = f"{''.join(choices(ascii_letters + digits, k=64))}.png"
-                if not os.path.exists(f"static/img/articles_images/{filename}"):
-                    break
-            image.save(f"static/img/articles_images/{filename}")
+            filename = get_image_path(ARTICLES_IMAGES_DIR)
+            image.save(f"{ARTICLES_IMAGES_DIR}/{filename}")
             if article.image:
-                os.remove(f"static/img/articles_images/{article.image}")
+                os.remove(f"{ARTICLES_IMAGES_DIR}/{article.image}")
             article.image = filename
         db_sess.commit()
 
@@ -55,6 +51,6 @@ class ArticleModelWorker:
         if not article:
             raise ArticleNotFoundError
         if article.image:
-            os.remove(f"static/img/articles_images/{article.image}")
+            os.remove(f"{ARTICLES_IMAGES_DIR}/{article.image}")
         db_sess.delete(article)
         db_sess.commit()

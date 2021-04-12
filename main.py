@@ -10,8 +10,10 @@ from data.users import User
 from data.articles import Article
 from forms.user import RegisterForm, LoginForm, EditUserForm
 from forms.article import ArticleForm
+from forms.comment import CommentForm
 from model_workers.user import UserModelWorker
 from model_workers.article import ArticleModelWorker
+from model_workers.comment import CommentModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError
 
@@ -223,6 +225,28 @@ def delete_article(article_id):
         abort(403)
     ArticleModelWorker.delete_article(article_id)
     return redirect("/")
+
+
+@app.route("/article/<int:article_id>", methods=["GET", "POST"])
+def article_page(article_id):
+    form = CommentForm()
+    db_sess = db_session.create_session()
+    article = db_sess.query(Article).get(article_id)
+    if not article:
+        abort(404)
+    if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            abort(401)
+        CommentModelWorker.new_comment({
+                "text": form.text.data,
+                "image": form.image.data,
+                "article_id": article_id,
+                "author": current_user.id
+            })
+        form.text.data = None
+        form.image.data = None
+        return redirect(f"/article/{article_id}#commentForm")
+    return render_template("article_page.html", title=article.title, article=article, form=form)
 
 
 @app.route("/")

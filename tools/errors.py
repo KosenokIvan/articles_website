@@ -16,3 +16,7 @@ class IncorrectPasswordError(Exception):
 
 class ArticleNotFoundError(Exception):
     pass
+
+
+class CommentNotFoundError(Exception):
+    pass

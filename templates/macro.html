@@ -21,14 +21,14 @@
                 </span>
             {% endif %}
         </h4>
-        <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date }}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date|string|truncate(16, true, end="") }}</h6>
         {% if article.image %}
             <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
                  alt="" style="max-width: 40%" class="card-img-top">
         {% endif %}
         <div class="cart-body">
             <p class="card-text preserve-line-breaks">{{ article.content|truncate(255) }}</p>
-            <a href="#" class="card-link preserve-line-breaks">Читать далее</a>
+            <a href="/article/{{ article.id }}" class="card-link preserve-line-breaks">Перейти к статье</a>
         </div>
     </div>
 {% endmacro %}

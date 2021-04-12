@@ -14,3 +14,4 @@ class Article(SqlAlchemyBase, SerializerMixin):
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
     image = sqlalchemy.Column(sqlalchemy.String)
     user = orm.relation("User")
+    comments = orm.relation("Comment", back_populates="article")

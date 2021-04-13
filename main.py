@@ -8,14 +8,17 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from data import db_session
 from data.users import User
 from data.articles import Article
+from data.comments import Comment
+from data.likes import ArticleLike
 from forms.user import RegisterForm, LoginForm, EditUserForm
 from forms.article import ArticleForm
 from forms.comment import CommentForm
 from model_workers.user import UserModelWorker
 from model_workers.article import ArticleModelWorker
 from model_workers.comment import CommentModelWorker
+from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError
+    UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -210,7 +213,7 @@ def edit_article(article_id):
             })
         except ArticleNotFoundError:
             abort(404)
-        return redirect(f"/")
+        return redirect(f"/#articleCard{article.id}")
     return render_template(template_name, title=title, form=form)
 
 
@@ -246,7 +249,40 @@ def article_page(article_id):
         form.text.data = None
         form.image.data = None
         return redirect(f"/article/{article_id}#commentForm")
-    return render_template("article_page.html", title=article.title, article=article, form=form)
+    return render_template("article_page.html", title=article.title,
+                           article=article, form=form)
+
+
+@app.route("/delete_comment/<int:comment_id>")
+@login_required
+def delete_comment(comment_id):
+    db_sess = db_session.create_session()
+    comment = db_sess.query(Comment).get(comment_id)
+    if not comment:
+        abort(404)
+    if comment.user != current_user:
+        abort(403)
+    article_id = comment.article_id
+    CommentModelWorker.delete_comment(comment_id)
+    return redirect(f"/article/{article_id}")
+
+
+@app.route("/like/<int:article_id>")
+@login_required
+def new_like(article_id):
+    try:
+        ArticleLikeModelWorker.new_like({
+            "article_id": article_id,
+            "user_id": current_user.id
+        })
+    except ArticleNotFoundError:
+        abort(404)
+    except LikeAlreadyThereError:
+        ArticleLikeModelWorker.delete_like({
+            "article_id": article_id,
+            "user_id": current_user.id
+        })
+    return redirect(f"/article/{article_id}")
 
 
 @app.route("/")
@@ -261,7 +297,7 @@ def index(page_index=1):
     if page_index > max_page_index:
         abort(404)
     articles = response.slice((page_index - 1) * articles_count, page_index * articles_count)
-    return render_template("index.html", title="main", articles_list=articles,
+    return render_template("index.html", title="Главная", articles_list=articles,
                            page_index=page_index, max_page_index=max_page_index)
 
 

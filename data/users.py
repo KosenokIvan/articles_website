@@ -14,12 +14,13 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     name = sqlalchemy.Column(sqlalchemy.String(64))
     nickname = sqlalchemy.Column(sqlalchemy.String(32), unique=True, index=True)
     email = sqlalchemy.Column(sqlalchemy.String(256), unique=True)
-    hashed_password = sqlalchemy.Column(sqlalchemy.String)
+    hashed_password = sqlalchemy.Column(sqlalchemy.String(512))
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
-    avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    avatar = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String(4096), nullable=True)
-    articles = orm.relation("Article", back_populates="user")
-    comments = orm.relation("Comment", back_populates="user")
+    articles = orm.relation("Article", back_populates="user", cascade="all,delete-orphan")
+    comments = orm.relation("Comment", back_populates="user", cascade="all,delete-orphan")
+    likes = orm.relation("ArticleLike", back_populates="user", cascade="all,delete-orphan")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

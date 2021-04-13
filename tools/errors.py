@@ -20,3 +20,11 @@ class ArticleNotFoundError(Exception):
 
 class CommentNotFoundError(Exception):
     pass
+
+
+class LikeAlreadyThereError(Exception):
+    pass
+
+
+class LikeNotFoundError(Exception):
+    pass

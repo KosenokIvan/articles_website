@@ -6,8 +6,12 @@
     {% endif %}
 {% endmacro %}
 
+{% macro datetime_to_string(dt) %}
+    {{ dt.strftime("%d %b %Y в %H:%M") }}
+{% endmacro %}
+
 {% macro article_card(article, current_user) %}
-    <div class="card article-card">
+    <div class="card article-card" id="articleCard{{ article.id }}">
         <div class="card-header">
             <h4 class="card-title">
                 <img src="{{ avatar_filename(article.user) }}" alt="" width="48" height="48">
@@ -22,7 +26,7 @@
                     </span>
                 {% endif %}
             </h4>
-            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ article.create_date|string|truncate(16, true, end="") }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ datetime_to_string(article.create_date) }}</h6>
         </div>
         {% if article.image %}
             <img src="{{ url_for('static', filename='img/articles_images/' + article.image) }}"
@@ -31,6 +35,16 @@
         <div class="card-body">
             <p class="card-text preserve-line-breaks">{{ article.content|truncate(255) }}</p>
             <a href="/article/{{ article.id }}" class="card-link">Перейти к статье</a>
+        </div>
+        <div class="card-footer">
+            Лайков: {{ article.likes|length }}
+            <a href="/like/{{ article.id }}" class="btn
+               {% if current_user is in(article.likes|map(attribute='user')) %}
+                   btn-danger
+               {% else %}
+                   btn-secondary
+               {% endif %}">Лайк
+            </a>
         </div>
     </div>
 {% endmacro %}
@@ -41,8 +55,16 @@
             <h5 class="card-title">
                 <img src="{{ avatar_filename(comment.user) }}" alt="" width="48" height="48">
                 <a href="/user_page/{{ comment.author }}">@{{ comment.user.nickname }}</a>
+                {% if current_user == comment.user %}
+                    <span style="float: right">
+                        <a href="/edit_comment/{{ comment.id }}"
+                           class="btn btn-warning">Изменить</a>
+                        <a href="/delete_comment/{{ comment.id }}"
+                           class="btn btn-danger">Удалить</a>
+                    </span>
+                {% endif %}
             </h5>
-            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ comment.create_date|string|truncate(16, true, end="") }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">Опубликовано {{ datetime_to_string(comment.create_date) }}</h6>
         </div>
         {% if comment.image %}
             <img src="{{ url_for('static', filename='img/comments_images/' + comment.image) }}"

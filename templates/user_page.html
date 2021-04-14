@@ -17,7 +17,7 @@
         {# "$i" заменяется на индекс страницы #}
         {{ pagination_widget(page_index, max_page_index, page_links_count, link_format) }}
         {% for article in articles_list %}
-            {{ article_card(article, current_user) }}
+            {{ article_card(article, current_user, "/user_page/" + user.id|string + "#articleCard" + article.id|string) }}
         {% else %}
             <p class="col-auto">
                 Этот пользователь не опубликовал ни одной статьи

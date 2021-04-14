@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macro.html" import comment_card, datetime_to_string %}
+{% from "macro.html" import comment_card, datetime_to_string, like_btn %}
 
 {% block content %}
     <div class="col-auto">
@@ -23,11 +23,10 @@
         {% endif %}
         <div>
             <p class="preserve-line-breaks">{{ article.content }}</p>
-            {% if current_user is in(article.likes|map(attribute="user")) %}
-                +++++
-            {% else %}
-                -----
-            {% endif %}
+            {{ like_btn(article.likes|length,
+                        current_user is in(article.likes|map(attribute='user')),
+                        "/like/" + article.id|string,
+                        "/article/" + article.id|string) }}
         </div>
         <hr>
         {% if current_user.is_authenticated %}

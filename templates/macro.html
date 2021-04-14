@@ -10,7 +10,16 @@
     {{ dt.strftime("%d %b %Y в %H:%M") }}
 {% endmacro %}
 
-{% macro article_card(article, current_user) %}
+{% macro like_btn(likes_count, is_liked, url, redirect_url) %}
+    <a href="{{ url }}?redirect_url={{ redirect_url }}" class="btn
+        {% if is_liked %}
+            btn-danger
+        {% else %}
+            btn-secondary
+        {% endif %}">Лайков: {{ likes_count }}</a>
+{% endmacro %}
+
+{% macro article_card(article, current_user, url="/") %}
     <div class="card article-card" id="articleCard{{ article.id }}">
         <div class="card-header">
             <h4 class="card-title">
@@ -37,14 +46,10 @@
             <a href="/article/{{ article.id }}" class="card-link">Перейти к статье</a>
         </div>
         <div class="card-footer">
-            Лайков: {{ article.likes|length }}
-            <a href="/like/{{ article.id }}" class="btn
-               {% if current_user is in(article.likes|map(attribute='user')) %}
-                   btn-danger
-               {% else %}
-                   btn-secondary
-               {% endif %}">Лайк
-            </a>
+            {{ like_btn(article.likes|length,
+                        current_user is in(article.likes|map(attribute='user')),
+                        "/like/" + article.id|string,
+                        url) }}
         </div>
     </div>
 {% endmacro %}

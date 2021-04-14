@@ -19,6 +19,7 @@ from model_workers.comment import CommentModelWorker
 from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError
+from parsers.redirect_url import parser as redirect_url_parser
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -270,6 +271,7 @@ def delete_comment(comment_id):
 @app.route("/like/<int:article_id>")
 @login_required
 def new_like(article_id):
+    args = redirect_url_parser.parse_args()
     try:
         ArticleLikeModelWorker.new_like({
             "article_id": article_id,
@@ -282,7 +284,7 @@ def new_like(article_id):
             "article_id": article_id,
             "user_id": current_user.id
         })
-    return redirect(f"/article/{article_id}")
+    return redirect(args["redirect_url"])
 
 
 @app.route("/")

@@ -26,7 +26,8 @@
             {{ like_btn(article.likes|length,
                         current_user is in(article.likes|map(attribute='user')),
                         "/like/" + article.id|string,
-                        "/article/" + article.id|string) }}
+                        "/article/" + article.id|string,
+                        not current_user.is_authenticated) }}
         </div>
         <hr>
         {% if current_user.is_authenticated %}

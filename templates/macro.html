@@ -10,12 +10,15 @@
     {{ dt.strftime("%d %b %Y в %H:%M") }}
 {% endmacro %}
 
-{% macro like_btn(likes_count, is_liked, url, redirect_url) %}
+{% macro like_btn(likes_count, is_liked, url, redirect_url, is_disabled=False) %}
     <a href="{{ url }}?redirect_url={{ redirect_url }}" class="btn
         {% if is_liked %}
-            btn-danger
+            btn-success
         {% else %}
             btn-secondary
+        {% endif %}
+        {% if is_disabled %}
+            disabled
         {% endif %}">Лайков: {{ likes_count }}</a>
 {% endmacro %}
 
@@ -49,7 +52,8 @@
             {{ like_btn(article.likes|length,
                         current_user is in(article.likes|map(attribute='user')),
                         "/like/" + article.id|string,
-                        url) }}
+                        url,
+                        not current_user.is_authenticated) }}
         </div>
     </div>
 {% endmacro %}

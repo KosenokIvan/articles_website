@@ -54,3 +54,12 @@ class ArticleModelWorker:
             os.remove(f"{ARTICLES_IMAGES_DIR}/{article.image}")
         db_sess.delete(article)
         db_sess.commit()
+
+    @staticmethod
+    def update_likes_count(article_id, likes_delta):
+        db_sess = db_session.create_session()
+        article = db_sess.query(Article).get(article_id)
+        if not article:
+            raise ArticleNotFoundError
+        article.likes_count += likes_delta
+        db_sess.commit()

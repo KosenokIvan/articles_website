@@ -49,7 +49,7 @@
             <a href="/article/{{ article.id }}" class="card-link">Перейти к статье</a>
         </div>
         <div class="card-footer">
-            {{ like_btn(article.likes|length,
+            {{ like_btn(article.likes_count,
                         current_user is in(article.likes|map(attribute='user')),
                         "/like/" + article.id|string,
                         url,
@@ -132,4 +132,11 @@
             </li>
         {% endif %}
     </ul>
+{% endmacro %}
+
+{% macro sorted_by_widget(url) %}
+    <div class="btn-group" role="group">
+        <a href="{{ url }}?sorted_by=create_date" class="btn btn-outline-primary">По дате создания</a>
+        <a href="{{ url }}?sorted_by=likes_count" class="btn btn-outline-primary">По количеству лайков</a>
+    </div>
 {% endmacro %}

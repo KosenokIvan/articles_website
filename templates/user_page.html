@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macro.html" import article_card, avatar_filename, pagination_widget %}
+{% from "macro.html" import article_card, avatar_filename, pagination_widget, sorted_by_widget %}
 
 {% block content %}
     <div class="col-auto">
@@ -16,6 +16,7 @@
         {% set link_format = "/user_page/" + user.id|string + "/page$i" %}
         {# "$i" заменяется на индекс страницы #}
         {{ pagination_widget(page_index, max_page_index, page_links_count, link_format) }}
+        {{ sorted_by_widget("/user_page/" + user.id|string + "/page" + page_index|string) }}
         {% for article in articles_list %}
             {{ article_card(article, current_user, "/user_page/" + user.id|string + "#articleCard" + article.id|string) }}
         {% else %}
@@ -24,5 +25,6 @@
             </p>
         {% endfor %}
         {{ pagination_widget(page_index, max_page_index, page_links_count, link_format) }}
+        {{ sorted_by_widget("/user_page/" + user.id|string + "/page" + page_index|string) }}
     </div>
 {% endblock %}

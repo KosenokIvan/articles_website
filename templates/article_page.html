@@ -23,7 +23,7 @@
         {% endif %}
         <div>
             <p class="preserve-line-breaks">{{ article.content }}</p>
-            {{ like_btn(article.likes|length,
+            {{ like_btn(article.likes_count,
                         current_user is in(article.likes|map(attribute='user')),
                         "/like/" + article.id|string,
                         "/article/" + article.id|string,

@@ -3,7 +3,7 @@ from string import ascii_letters, digits
 import os
 from io import BytesIO
 from PIL import Image
-from flask import Flask, render_template, redirect, request, url_for, make_response, abort
+from flask import Flask, render_template, redirect, request, url_for, make_response, abort, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from data import db_session
 from data.users import User
@@ -20,6 +20,7 @@ from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError
 from parsers.redirect_url import parser as redirect_url_parser
+from parsers.sorted_by import parser as sorted_by_parser
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "articles_site"
@@ -155,6 +156,9 @@ def edit_user():
 @app.route("/user_page/<int:user_id>")
 @app.route("/user_page/<int:user_id>/page<int:page_index>")
 def user_page(user_id, page_index=1):
+    args = sorted_by_parser.parse_args()
+    if args["sorted_by"] is not None:
+        session["sorted_by"] = args["sorted_by"]
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
     if not user:
@@ -165,7 +169,11 @@ def user_page(user_id, page_index=1):
                           (0 if user_articles_count % articles_count == 0 else 1)), 1)
     if page_index > max_page_index:
         abort(404)
-    articles = sorted(user.articles, key=lambda x: x.create_date, reverse=True)[
+    if session["sorted_by"] == "create_date":
+        sorted_key = lambda x: x.create_date
+    else:
+        sorted_key = lambda x: (x.likes_count, x.create_date)
+    articles = sorted(user.articles, key=sorted_key, reverse=True)[
                (page_index - 1) * articles_count:page_index * articles_count
                ]
     return render_template("user_page.html", title=f"@{user.nickname}", user=user,
@@ -290,8 +298,16 @@ def new_like(article_id):
 @app.route("/")
 @app.route("/page<int:page_index>")
 def index(page_index=1):
+    args = sorted_by_parser.parse_args()
+    if args["sorted_by"] is not None:
+        session["sorted_by"] = args["sorted_by"]
     db_sess = db_session.create_session()
-    response = db_sess.query(Article).order_by(Article.create_date.desc())
+    response = db_sess.query(Article)
+    sorted_by = session.get("sorted_by", "create_date")
+    if sorted_by == "create_date":
+        response = response.order_by(Article.create_date.desc())
+    else:
+        response = response.order_by(Article.likes_count.desc()).order_by(Article.create_date.desc())
     all_articles_count = response.count()
     articles_count = 10
     max_page_index = max((all_articles_count // articles_count +

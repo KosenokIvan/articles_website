@@ -2,6 +2,7 @@ from data.likes import ArticleLike
 from data.articles import Article
 from data import db_session
 from tools.errors import LikeAlreadyThereError, LikeNotFoundError, ArticleNotFoundError
+from model_workers.article import ArticleModelWorker
 
 
 class ArticleLikeModelWorker:
@@ -19,6 +20,7 @@ class ArticleLikeModelWorker:
             user_id=like_data["user_id"],
             article_id=like_data["article_id"]
         )
+        ArticleModelWorker.update_likes_count(like_data["article_id"], 1)
         db_sess.add(like)
         db_sess.commit()
 
@@ -31,5 +33,6 @@ class ArticleLikeModelWorker:
         ).first()
         if not like:
             raise LikeNotFoundError
+        ArticleModelWorker.update_likes_count(like_data["article_id"], -1)
         db_sess.delete(like)
         db_sess.commit()

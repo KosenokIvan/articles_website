@@ -5,6 +5,7 @@ from io import BytesIO
 from PIL import Image
 from flask import Flask, render_template, redirect, request, url_for, make_response, abort, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_restful import Api
 from data import db_session
 from data.users import User
 from data.articles import Article
@@ -18,11 +19,15 @@ from model_workers.article import ArticleModelWorker
 from model_workers.comment import CommentModelWorker
 from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError
+    UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError, \
+    UserNotFoundError
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
+from resources.articles import ArticleResource
+from resources.users import LoginResource
 
 app = Flask(__name__)
+api = Api(app)
 app.config["SECRET_KEY"] = "articles_site"
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -86,15 +91,24 @@ def login():
     title = "Авторизация"
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember_me.data)
+        try:
+            UserModelWorker.login({
+                "email": form.email.data,
+                "password": form.password.data,
+                "remember_me": form.remember_me.data
+            })
+        except UserNotFoundError:
+            return render_template(template_name,
+                                   form=form,
+                                   message="Неправильная почта или пароль",
+                                   message_class="alert-danger")
+        except IncorrectPasswordError:
+            return render_template(template_name,
+                                   form=form,
+                                   message="Неправильная почта или пароль",
+                                   message_class="alert-danger")
+        else:
             return redirect("/")
-        return render_template(template_name,
-                               form=form,
-                               message="Неправильный логин или пароль",
-                               message_class="alert-danger")
     return render_template(template_name, title=title, form=form)
 
 
@@ -345,4 +359,6 @@ def page_not_found(error):
 
 if __name__ == '__main__':
     db_session.global_init("db/articles.db")
+    api.add_resource(ArticleResource, "/api/article/<int:article_id>")
+    api.add_resource(LoginResource, "/api/login")
     app.run()

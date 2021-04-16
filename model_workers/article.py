@@ -12,6 +12,14 @@ from tools.constants import ARTICLES_IMAGES_DIR
 
 class ArticleModelWorker:
     @staticmethod
+    def get_article(article_id, fields=("id", "title")):
+        db_sess = db_session.create_session()
+        article = db_sess.query(Article).get(article_id)
+        if not article:
+            raise ArticleNotFoundError
+        return article.to_dict(only=fields)
+
+    @staticmethod
     def new_article(article_data):
         db_sess = db_session.create_session()
         article = Article(

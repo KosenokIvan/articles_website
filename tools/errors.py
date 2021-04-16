@@ -28,3 +28,7 @@ class LikeAlreadyThereError(Exception):
 
 class LikeNotFoundError(Exception):
     pass
+
+
+class UserNotFoundError(Exception):
+    pass

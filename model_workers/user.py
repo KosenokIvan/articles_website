@@ -4,15 +4,26 @@ import os
 from io import BytesIO
 from datetime import datetime
 from PIL import Image
+from flask_login import login_user
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError
+    UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
 
 
 class UserModelWorker:
+    @staticmethod
+    def login(user_data):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == user_data["email"]).first()
+        if not user:
+            raise UserNotFoundError
+        if not user.check_password(user_data["password"]):
+            raise IncorrectPasswordError
+        login_user(user, remember=user_data["remember_me"])
+
     @staticmethod
     def new_user(user_data):
         if user_data["password"] != user_data["password_again"]:

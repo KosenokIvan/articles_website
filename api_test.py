@@ -56,4 +56,4 @@ if not login_response:
 delete_response = delete("http://localhost:5000/api/user/5", cookies=login_response.cookies)
 print(delete_response.json())'''
 
-print(get("http://localhost:5000/api/users").json())
+print(get("http://localhost:5000/api/users?nickname_search_string=ra&nickname_filter=starts").json())

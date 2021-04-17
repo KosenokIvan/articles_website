@@ -8,7 +8,7 @@ from flask_login import login_user
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError
+    UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError, UnknownFilterError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
 
@@ -23,9 +23,21 @@ class UserModelWorker:
         return user.to_dict(only=fields)
 
     @staticmethod
-    def get_all_users(fields=("id", "nickname"), limit=None, offset=None):
+    def get_all_users(fields=("id", "nickname"), limit=None, offset=None,
+                      nickname_search_string=None, nickname_filter="equals"):
         db_sess = db_session.create_session()
         users = db_sess.query(User)
+        if nickname_search_string is not None:
+            if nickname_filter == "equals":
+                users = users.filter(User.nickname == nickname_search_string)
+            elif nickname_filter == "starts":
+                users = users.filter(User.nickname.like(f"{nickname_search_string}%"))
+            elif nickname_filter == "ends":
+                users = users.filter(User.nickname.like(f"%{nickname_search_string}"))
+            elif nickname_filter == "contains":
+                users = users.filter(User.nickname.like(f"%{nickname_search_string}%"))
+            else:
+                raise UnknownFilterError(f"Unknown filter: {nickname_filter}")
         if offset is not None:
             users = users.offset(offset)
         if limit is not None:

@@ -34,5 +34,9 @@ class UserNotFoundError(Exception):
     pass
 
 
+class UnknownFilterError(Exception):
+    pass
+
+
 class ForbiddenToUserError(Exception):
     pass

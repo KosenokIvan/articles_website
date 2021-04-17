@@ -8,3 +8,9 @@ parser.add_argument("get_field", action="append",
 range_parser = parser.copy()
 range_parser.add_argument("limit", type=int)
 range_parser.add_argument("offset", type=int)
+
+find_parser = range_parser.copy()
+find_parser.add_argument("nickname_search_string", type=str)
+find_parser.add_argument("nickname_filter",
+                         choices=["equals", "starts", "ends", "contains"],
+                         default="equals")

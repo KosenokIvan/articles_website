@@ -9,6 +9,7 @@ from .db_session import SqlAlchemyBase
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = "users"
+    serialize_rules = ("-articles", "-comments", "-likes")
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     surname = sqlalchemy.Column(sqlalchemy.String(64))
     name = sqlalchemy.Column(sqlalchemy.String(64))

@@ -15,6 +15,20 @@ from tools.constants import USERS_AVATARS_DIR
 
 class UserModelWorker:
     @staticmethod
+    def get_user(user_id, fields=("id", "nickname")):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        if not user:
+            raise UserNotFoundError
+        return user.to_dict(only=fields)
+
+    @staticmethod
+    def get_all_users(fields=("id", "nickname")):
+        db_sess = db_session.create_session()
+        users = db_sess.query(User).all()
+        return [user.to_dict(only=fields) for user in users]
+
+    @staticmethod
     def login(user_data):
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == user_data["email"]).first()
@@ -38,12 +52,12 @@ class UserModelWorker:
                     nickname=user_data["nickname"],
                     email=user_data["email"])
         user.set_password(user_data["password"])
-        if user_data["avatar"]:
+        if user_data.get("avatar"):
             image = Image.open(BytesIO(user_data["avatar"].read()))
             filename = get_image_path(USERS_AVATARS_DIR)
             image.save(f"{USERS_AVATARS_DIR}/{filename}")
             user.avatar = filename
-        if user_data["description"]:
+        if user_data.get("description") is not None:
             user.description = user_data["description"]
         db_sess.add(user)
         db_sess.commit()
@@ -62,21 +76,37 @@ class UserModelWorker:
                 User.nickname == user_data["nickname"], User.id != user_id
         ).first():
             raise UserAlreadyExistError
-        if user_data["new_password"]:
-            if user_data["new_password"] != user_data["new_password_again"]:
+        if user_data.get("new_password") is not None:
+            if user_data["new_password"] != user_data.get("new_password_again"):
                 raise PasswordMismatchError
             user.set_password(user_data["new_password"])
-        user.name = user_data["name"]
-        user.surname = user_data["surname"]
-        user.nickname = user_data["nickname"]
-        user.email = user_data["email"]
-        user.description = user_data["description"]
+        if user_data.get("name") is not None:
+            user.name = user_data.get("name", user.name)
+        if user_data.get("surname") is not None:
+            user.surname = user_data.get("surname", user.surname)
+        if user_data.get("nickname") is not None:
+            user.nickname = user_data.get("nickname", user.nickname)
+        if user_data.get("email") is not None:
+            user.email = user_data.get("email", user.email)
+        if user_data.get("description") is not None:
+            user.description = user_data.get("description", user.description)
         user.modified_date = datetime.now()
-        if user_data["avatar"]:
+        if user_data.get("avatar"):
             image = Image.open(BytesIO(user_data["avatar"].read()))
             filename = get_image_path(USERS_AVATARS_DIR)
             if user.avatar:
                 os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
             user.avatar = filename
             image.save(f"{USERS_AVATARS_DIR}/{user.avatar}")
+        db_sess.commit()
+
+    @staticmethod
+    def delete_user(user_id):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        if not user:
+            raise UserNotFoundError
+        if user.avatar is not None:
+            os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
+        db_sess.delete(user)
         db_sess.commit()

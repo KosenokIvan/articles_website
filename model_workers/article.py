@@ -33,7 +33,7 @@ class ArticleModelWorker:
             content=article_data["content"],
             author=article_data["author"]
         )
-        if article_data.get("image") is not None:
+        if article_data.get("image"):
             image = Image.open(BytesIO(article_data["image"].read()))
             filename = get_image_path(ARTICLES_IMAGES_DIR)
             image.save(f"{ARTICLES_IMAGES_DIR}/{filename}")
@@ -49,11 +49,11 @@ class ArticleModelWorker:
             raise ArticleNotFoundError
         if article.author != user_id:
             raise ForbiddenToUserError
-        if "title" in article_data and article_data["title"]:
+        if article_data.get("title") is not None:
             article.title = article_data["title"]
-        if "content" in article_data and article_data["content"]:
+        if article_data.get("content") is not None:
             article.content = article_data["content"]
-        if "image" in article_data and article_data["image"]:
+        if article_data.get("image"):
             image = Image.open(BytesIO(article_data["image"].read()))
             filename = get_image_path(ARTICLES_IMAGES_DIR)
             image.save(f"{ARTICLES_IMAGES_DIR}/{filename}")

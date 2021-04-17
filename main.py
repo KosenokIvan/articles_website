@@ -24,7 +24,7 @@ from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
-from resources.users import LoginResource
+from resources.users import LoginResource, UserResource, UsersListResource
 
 app = Flask(__name__)
 api = Api(app)
@@ -363,4 +363,6 @@ if __name__ == '__main__':
     api.add_resource(ArticleResource, "/api/article/<int:article_id>")
     api.add_resource(ArticlesListResource, "/api/articles")
     api.add_resource(LoginResource, "/api/login")
+    api.add_resource(UserResource, "/api/user/<int:user_id>")
+    api.add_resource(UsersListResource, "/api/users")
     app.run()

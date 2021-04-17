@@ -72,8 +72,9 @@ class ArticlesListResource(Resource):
         return jsonify({"success": "ok"})
 
     def get(self):
-        args = get_article_parser.parser.parse_args()
-        articles = ArticleModelWorker.get_all_articles(args["get_field"])
+        args = get_article_parser.range_parser.parse_args()
+        articles = ArticleModelWorker.get_all_articles(args["get_field"],
+                                                       args["limit"], args["offset"])
         if "image" in args["get_field"]:
             for article in articles:
                 if article["image"] is not None:

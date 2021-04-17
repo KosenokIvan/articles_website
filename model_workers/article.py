@@ -20,9 +20,13 @@ class ArticleModelWorker:
         return article.to_dict(only=fields)
 
     @staticmethod
-    def get_all_articles(fields=("id", "title")):
+    def get_all_articles(fields=("id", "title"), limit=None, offset=None):
         db_sess = db_session.create_session()
-        articles = db_sess.query(Article).all()
+        articles = db_sess.query(Article)
+        if offset is not None:
+            articles = articles.offset(offset)
+        if limit is not None:
+            articles = articles.limit(limit)
         return [article.to_dict(only=fields) for article in articles]
 
     @staticmethod

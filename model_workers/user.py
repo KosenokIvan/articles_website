@@ -23,9 +23,13 @@ class UserModelWorker:
         return user.to_dict(only=fields)
 
     @staticmethod
-    def get_all_users(fields=("id", "nickname")):
+    def get_all_users(fields=("id", "nickname"), limit=None, offset=None):
         db_sess = db_session.create_session()
-        users = db_sess.query(User).all()
+        users = db_sess.query(User)
+        if offset is not None:
+            users = users.offset(offset)
+        if limit is not None:
+            users = users.limit(limit)
         return [user.to_dict(only=fields) for user in users]
 
     @staticmethod

@@ -109,10 +109,10 @@ class UsersListResource(Resource):
             return jsonify({"success": "ok"})
 
     def get(self):
-        args = get_user_parser.parser.parse_args()
+        args = get_user_parser.range_parser.parse_args()
         fields = tuple(field for field in ("id", "nickname", "description", "avatar")
                        if field in args["get_field"])
-        users = UserModelWorker.get_all_users(fields)
+        users = UserModelWorker.get_all_users(fields, args["limit"], args["offset"])
         if "avatar" in fields:
             for user in users:
                 if user["avatar"] is not None:

@@ -32,3 +32,7 @@ class LikeNotFoundError(Exception):
 
 class UserNotFoundError(Exception):
     pass
+
+
+class ForbiddenToUserError(Exception):
+    pass

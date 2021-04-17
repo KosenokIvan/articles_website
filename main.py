@@ -20,10 +20,10 @@ from model_workers.comment import CommentModelWorker
 from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError, \
-    UserNotFoundError
+    UserNotFoundError, ForbiddenToUserError
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
-from resources.articles import ArticleResource
+from resources.articles import ArticleResource, ArticlesListResource
 from resources.users import LoginResource
 
 app = Flask(__name__)
@@ -183,7 +183,7 @@ def user_page(user_id, page_index=1):
                           (0 if user_articles_count % articles_count == 0 else 1)), 1)
     if page_index > max_page_index:
         abort(404)
-    if session["sorted_by"] == "create_date":
+    if session.get("sorted_by", "create_date") == "create_date":
         sorted_key = lambda x: x.create_date
     else:
         sorted_key = lambda x: (x.likes_count, x.create_date)
@@ -218,24 +218,26 @@ def edit_article(article_id):
     template_name = "add_article.html"
     title = "Редактировать статью"
     form = ArticleForm()
-    db_sess = db_session.create_session()
-    article = db_sess.query(Article).get(article_id)
-    if not article:
+    try:
+        article = ArticleModelWorker.get_article(article_id, ("author",))
+    except ArticleNotFoundError:
         abort(404)
-    if article.user != current_user:
+    if article["author"] != current_user.id:
         abort(403)
     if request.method == "GET":
         form.title.data = article.title
         form.content.data = article.content
     if form.validate_on_submit():
         try:
-            ArticleModelWorker.edit_article(article_id, {
+            ArticleModelWorker.edit_article(article_id, current_user.id, {
                 "title": form.title.data,
                 "content": form.content.data,
                 "image": form.image.data
             })
         except ArticleNotFoundError:
             abort(404)
+        except ForbiddenToUserError:
+            abort(403)
         return redirect(f"/#articleCard{article.id}")
     return render_template(template_name, title=title, form=form)
 
@@ -243,13 +245,12 @@ def edit_article(article_id):
 @app.route("/delete_article/<int:article_id>", methods=["GET", "POST"])
 @login_required
 def delete_article(article_id):
-    db_sess = db_session.create_session()
-    article = db_sess.query(Article).get(article_id)
-    if not article:
+    try:
+        ArticleModelWorker.delete_article(article_id, current_user.id)
+    except ArticleNotFoundError:
         abort(404)
-    if article.user != current_user:
+    except ForbiddenToUserError:
         abort(403)
-    ArticleModelWorker.delete_article(article_id)
     return redirect("/")
 
 
@@ -360,5 +361,6 @@ def page_not_found(error):
 if __name__ == '__main__':
     db_session.global_init("db/articles.db")
     api.add_resource(ArticleResource, "/api/article/<int:article_id>")
+    api.add_resource(ArticlesListResource, "/api/articles")
     api.add_resource(LoginResource, "/api/login")
     app.run()

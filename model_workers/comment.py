@@ -13,6 +13,29 @@ from tools.constants import COMMENTS_IMAGES_DIR
 
 class CommentModelWorker:
     @staticmethod
+    def get_comment(comment_id, fields=("id", "author", "article_id")):
+        db_sess = db_session.create_session()
+        comment = db_sess.query(Comment).get(comment_id)
+        if not comment:
+            raise CommentNotFoundError
+        return comment.to_dict(only=fields)
+
+    @staticmethod
+    def get_all_comments(fields=("id", "author", "article_id"), author=None, article=None,
+                         limit=None, offset=None):
+        db_sess = db_session.create_session()
+        comments = db_sess.query(Comment)
+        if author is not None:
+            comments = comments.filter(Comment.author == author)
+        if article is not None:
+            comments = comments.filter(Comment.article_id == article)
+        if offset is not None:
+            comments = comments.offset(offset)
+        if limit is not None:
+            comments = comments.limit(limit)
+        return [comment.to_dict(only=fields) for comment in comments]
+
+    @staticmethod
     def new_comment(comment_data):
         db_sess = db_session.create_session()
         if not db_sess.query(Article).get(comment_data["article_id"]):

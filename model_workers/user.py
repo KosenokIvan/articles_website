@@ -1,11 +1,10 @@
 from random import choices
-from string import ascii_letters, digits, ascii_lowercase, ascii_uppercase, punctuation
+from string import ascii_letters, digits
 import os
 from io import BytesIO
 from datetime import datetime
 from PIL import Image
 from flask_login import login_user
-from sqlalchemy import func
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \

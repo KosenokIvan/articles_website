@@ -59,3 +59,4 @@ print(delete_response.json())'''
 print(get("http://localhost:5000/api/articles"
           "?sorted_by=likes_count&get_field=id&get_field=title&author=4").json())
 print(get("http://localhost:5000/api/users?nickname_search_string=ra&nickname_filter=starts").json())
+print(get("http://localhost:5000/api/comments?article=32").json())

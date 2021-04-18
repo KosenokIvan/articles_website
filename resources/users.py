@@ -32,7 +32,8 @@ class UserResource(Resource):
     def get(self, user_id):
         args = get_user_parser.parser.parse_args()
         if current_user.is_authenticated and current_user.id == user_id:
-            fields = ("id", "name", "surname", "nickname", "email", "description", "avatar")
+            fields = ("id", "name", "surname", "nickname", "email",
+                      "description", "avatar", "modified_date")
         else:
             fields = ("id", "nickname", "description", "avatar")
         fields = (field for field in fields if field in args["get_field"])

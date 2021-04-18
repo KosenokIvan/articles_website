@@ -7,6 +7,7 @@ from .db_session import SqlAlchemyBase
 
 class Comment(SqlAlchemyBase, SerializerMixin):
     __tablename__ = "comments"
+    serialize_rules = ("-user", "-article")
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True, unique=True)
     author = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id",
                                                                          ondelete="CASCADE"))

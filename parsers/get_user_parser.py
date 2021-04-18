@@ -2,7 +2,8 @@ from flask_restful import reqparse
 
 parser = reqparse.RequestParser()
 parser.add_argument("get_field", action="append",
-                    choices=["id", "name", "surname", "nickname", "email", "description", "avatar"],
+                    choices=["id", "name", "surname", "nickname", "email",
+                             "description", "avatar", "modified_date"],
                     default=["id", "nickname"])
 
 range_parser = parser.copy()

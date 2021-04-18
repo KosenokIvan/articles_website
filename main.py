@@ -27,6 +27,7 @@ from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
 from resources.users import LoginResource, UserResource, UsersListResource
+from resources.comments import CommentResource, CommentsListResource
 
 app = Flask(__name__)
 api = Api(app)
@@ -450,4 +451,6 @@ if __name__ == '__main__':
     api.add_resource(LoginResource, "/api/login")
     api.add_resource(UserResource, "/api/user/<int:user_id>")
     api.add_resource(UsersListResource, "/api/users")
+    api.add_resource(CommentResource, "/api/comment/<int:comment_id>")
+    api.add_resource(CommentsListResource, "/api/comments")
     app.run()

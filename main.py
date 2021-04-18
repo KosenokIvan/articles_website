@@ -21,7 +21,8 @@ from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError, \
     UserNotFoundError, ForbiddenToUserError, IncorrectNicknameLengthError, \
-    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, NotSecurePasswordError
+    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, \
+    NotSecurePasswordError, CommentNotFoundError
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
@@ -44,7 +45,7 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect(f"/?sorted_by={session.get('sorted_by', 'create_date')}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -134,7 +135,7 @@ def login():
                                    message="Неправильная почта или пароль",
                                    message_class="alert-danger")
         else:
-            return redirect("/")
+            return redirect(f"/?sorted_by={session.get('sorted_by', 'create_date')}")
     return render_template(template_name, title=title, form=form)
 
 
@@ -214,7 +215,7 @@ def edit_user():
                                    form=form,
                                    message="Пароль должен содержать минимум 1 непробельный символ",
                                    message_class="alert-danger")
-        return redirect(f"/user_page/{user.id}")
+        return redirect(f"/user_page/{user.id}?sorted_by={session.get('sorted_by', 'create_date')}")
     return render_template(template_name, title=title, form=form)
 
 
@@ -258,7 +259,8 @@ def add_article():
             "author": current_user.id,
             "image": form.image.data
         })
-        return redirect(f"/user_page/{current_user.id}")
+        return redirect(f"/user_page/{current_user.id}?sorted_by="
+                        f"{session.get('sorted_by', 'create_date')}")
     return render_template(template_name, title=title, form=form)
 
 
@@ -301,30 +303,64 @@ def delete_article(article_id):
         abort(404)
     except ForbiddenToUserError:
         abort(403)
-    return redirect("/")
+    return redirect(f"/?sorted_by={session.get('sorted_by', 'create_date')}")
 
 
-@app.route("/article/<int:article_id>", methods=["GET", "POST"])
+@app.route("/article/<int:article_id>")
 def article_page(article_id):
-    form = CommentForm()
     db_sess = db_session.create_session()
     article = db_sess.query(Article).get(article_id)
     if not article:
         abort(404)
+    return render_template("article_page.html", title=article.title, article=article)
+
+
+@app.route("/add_comment/<int:article_id>", methods=["GET", "POST"])
+@login_required
+def add_comment(article_id):
+    template_name = "add_comment.html"
+    title = "Добавить комментарий"
+    form = CommentForm()
     if form.validate_on_submit():
-        if not current_user.is_authenticated:
-            abort(401)
-        CommentModelWorker.new_comment({
+        try:
+            CommentModelWorker.new_comment({
+                    "text": form.text.data,
+                    "image": form.image.data,
+                    "article_id": article_id,
+                    "author": current_user.id
+                })
+        except ArticleNotFoundError:
+            abort(404)
+        return redirect(f"/article/{article_id}")
+    return render_template(template_name, title=title, form=form)
+
+
+@app.route("/edit_comment/<int:comment_id>", methods=["GET", "POST"])
+@login_required
+def edit_comment(comment_id):
+    template_name = "add_comment.html"
+    title = "Редактировать комментарий"
+    form = CommentForm()
+    db_sess = db_session.create_session()
+    comment = db_sess.query(Comment).get(comment_id)
+    if not comment:
+        abort(404)
+    if comment.user != current_user:
+        abort(403)
+    if request.method == "GET":
+        form.text.data = comment.text
+    if form.validate_on_submit():
+        try:
+            CommentModelWorker.edit_comment(comment_id, current_user.id, {
                 "text": form.text.data,
-                "image": form.image.data,
-                "article_id": article_id,
-                "author": current_user.id
+                "image": form.image.data
             })
-        form.text.data = None
-        form.image.data = None
-        return redirect(f"/article/{article_id}#commentForm")
-    return render_template("article_page.html", title=article.title,
-                           article=article, form=form)
+        except CommentNotFoundError:
+            abort(404)
+        except ForbiddenToUserError:
+            abort(403)
+        return redirect(f"/article/{comment.article_id}#commentCard{comment_id}")
+    return render_template(template_name, title=title, form=form)
 
 
 @app.route("/delete_comment/<int:comment_id>")

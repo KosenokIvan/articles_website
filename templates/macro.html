@@ -59,7 +59,7 @@
 {% endmacro %}
 
 {% macro comment_card(comment, current_user) %}
-    <div class="card comment-card">
+    <div class="card comment-card" id="commentCard#{{ comment.id }}">
         <div class="card-header">
             <h5 class="card-title">
                 <img src="{{ avatar_filename(comment.user) }}" alt="" width="48" height="48">

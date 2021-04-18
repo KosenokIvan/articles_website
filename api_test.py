@@ -45,7 +45,7 @@ print(register_response.json())
 if not register_response:
     exit()'''
 
-login_response = post("http://localhost:5000/api/login", json={
+'''login_response = post("http://localhost:5000/api/login", json={
     "email": "test_email@test.test",
     "password": "qqqqqqqq"
 })
@@ -54,7 +54,7 @@ if not login_response:
     exit()
 
 delete_response = delete("http://localhost:5000/api/user/5", cookies=login_response.cookies)
-print(delete_response.json())
+print(delete_response.json())'''
 
 print(get("http://localhost:5000/api/articles"
           "?sorted_by=likes_count&get_field=id&get_field=title&get_field=likes_count").json())

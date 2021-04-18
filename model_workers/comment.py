@@ -4,8 +4,9 @@ import os
 from io import BytesIO
 from PIL import Image
 from data.comments import Comment
+from data.articles import Article
 from data import db_session
-from tools.errors import CommentNotFoundError
+from tools.errors import CommentNotFoundError, ArticleNotFoundError, ForbiddenToUserError
 from tools.get_image_path import get_image_path
 from tools.constants import COMMENTS_IMAGES_DIR
 
@@ -14,6 +15,8 @@ class CommentModelWorker:
     @staticmethod
     def new_comment(comment_data):
         db_sess = db_session.create_session()
+        if not db_sess.query(Article).get(comment_data["article_id"]):
+            raise ArticleNotFoundError
         comment = Comment(
             author=comment_data["author"],
             article_id=comment_data["article_id"],
@@ -28,11 +31,13 @@ class CommentModelWorker:
         db_sess.commit()
 
     @staticmethod
-    def edit_comment(comment_id, comment_data):
+    def edit_comment(comment_id, user_id, comment_data):
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
         if not comment:
             raise CommentNotFoundError
+        if comment.author != user_id:
+            raise ForbiddenToUserError
         comment.text = comment_data["text"]
         if comment_data["image"]:
             image = Image.open(BytesIO(comment_data["image"].read()))

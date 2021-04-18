@@ -73,7 +73,7 @@ class ArticlesListResource(Resource):
 
     def get(self):
         args = get_article_parser.range_parser.parse_args()
-        articles = ArticleModelWorker.get_all_articles(args["get_field"],
+        articles = ArticleModelWorker.get_all_articles(args["get_field"], args["sorted_by"],
                                                        args["limit"], args["offset"])
         if "image" in args["get_field"]:
             for article in articles:

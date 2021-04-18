@@ -222,8 +222,7 @@ def edit_user():
 @app.route("/user_page/<int:user_id>/page<int:page_index>")
 def user_page(user_id, page_index=1):
     args = sorted_by_parser.parse_args()
-    if args["sorted_by"] is not None:
-        session["sorted_by"] = args["sorted_by"]
+    session["sorted_by"] = args["sorted_by"]
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(user_id)
     if not user:
@@ -234,7 +233,7 @@ def user_page(user_id, page_index=1):
                           (0 if user_articles_count % articles_count == 0 else 1)), 1)
     if page_index > max_page_index:
         abort(404)
-    if session.get("sorted_by", "create_date") == "create_date":
+    if args["sorted_by"] == "create_date":
         sorted_key = lambda x: x.create_date
     else:
         sorted_key = lambda x: (x.likes_count, x.create_date)
@@ -243,7 +242,7 @@ def user_page(user_id, page_index=1):
                ]
     return render_template("user_page.html", title=f"@{user.nickname}", user=user,
                            articles_list=articles, page_index=page_index,
-                           max_page_index=max_page_index)
+                           max_page_index=max_page_index, sorted_by=session["sorted_by"])
 
 
 @app.route("/article", methods=["GET", "POST"])
@@ -270,14 +269,14 @@ def edit_article(article_id):
     title = "Редактировать статью"
     form = ArticleForm()
     try:
-        article = ArticleModelWorker.get_article(article_id, ("author",))
+        article = ArticleModelWorker.get_article(article_id, ("id", "author", "title", "content"))
     except ArticleNotFoundError:
         abort(404)
     if article["author"] != current_user.id:
         abort(403)
     if request.method == "GET":
-        form.title.data = article.title
-        form.content.data = article.content
+        form.title.data = article["title"]
+        form.content.data = article["content"]
     if form.validate_on_submit():
         try:
             ArticleModelWorker.edit_article(article_id, current_user.id, {
@@ -289,7 +288,7 @@ def edit_article(article_id):
             abort(404)
         except ForbiddenToUserError:
             abort(403)
-        return redirect(f"/#articleCard{article.id}")
+        return redirect(f"/article/{article['id']}")
     return render_template(template_name, title=title, form=form)
 
 
@@ -365,12 +364,10 @@ def new_like(article_id):
 @app.route("/page<int:page_index>")
 def index(page_index=1):
     args = sorted_by_parser.parse_args()
-    if args["sorted_by"] is not None:
-        session["sorted_by"] = args["sorted_by"]
+    session["sorted_by"] = args["sorted_by"]
     db_sess = db_session.create_session()
     response = db_sess.query(Article)
-    sorted_by = session.get("sorted_by", "create_date")
-    if sorted_by == "create_date":
+    if args["sorted_by"] == "create_date":
         response = response.order_by(Article.create_date.desc())
     else:
         response = response.order_by(Article.likes_count.desc()).order_by(Article.create_date.desc())
@@ -382,7 +379,8 @@ def index(page_index=1):
         abort(404)
     articles = response.slice((page_index - 1) * articles_count, page_index * articles_count)
     return render_template("index.html", title="Главная", articles_list=articles,
-                           page_index=page_index, max_page_index=max_page_index)
+                           page_index=page_index, max_page_index=max_page_index,
+                           sorted_by=session["sorted_by"])
 
 
 @app.errorhandler(401)

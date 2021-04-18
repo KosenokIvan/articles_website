@@ -20,9 +20,15 @@ class ArticleModelWorker:
         return article.to_dict(only=fields)
 
     @staticmethod
-    def get_all_articles(fields=("id", "title"), limit=None, offset=None):
+    def get_all_articles(fields=("id", "title"), sorted_by="create_date", limit=None, offset=None):
         db_sess = db_session.create_session()
         articles = db_sess.query(Article)
+        if sorted_by == "create_date":
+            articles = articles.order_by(Article.create_date.desc())
+        else:
+            articles = articles.order_by(
+                Article.likes_count.desc()
+            ).order_by(Article.create_date.desc())
         if offset is not None:
             articles = articles.offset(offset)
         if limit is not None:

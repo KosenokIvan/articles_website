@@ -14,6 +14,7 @@ from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     IncorrectPasswordLengthError, NotSecurePasswordError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
+from model_workers.article_like import ArticleLikeModelWorker
 
 
 def check_nickname(nickname):
@@ -149,5 +150,10 @@ class UserModelWorker:
             raise UserNotFoundError
         if user.avatar is not None:
             os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
+        for like in user.likes:
+            ArticleLikeModelWorker.delete_like({
+                "user_id": user_id,
+                "article_id": like.article_id
+            })
         db_sess.delete(user)
         db_sess.commit()

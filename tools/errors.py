@@ -40,3 +40,19 @@ class UnknownFilterError(Exception):
 
 class ForbiddenToUserError(Exception):
     pass
+
+
+class IncorrectNicknameLengthError(Exception):
+    pass
+
+
+class NicknameContainsInvalidCharactersError(Exception):
+    pass
+
+
+class IncorrectPasswordLengthError(Exception):
+    pass
+
+
+class NotSecurePasswordError(Exception):
+    pass

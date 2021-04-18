@@ -25,13 +25,18 @@
             {{ form.nickname.label() }}
             <div class="input-group">
                 <span class="input-group-text">@</span>
-                {{ form.nickname(class="form-control", type="text", maxlength="32") }}
-                {% for error in form.nickname.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                {% endfor %}
+                {{ form.nickname(class="form-control", type="text", minlength="3",
+                                 maxlength="32", aria_describedby="nicknameHelp") }}
             </div>
+            <div class="form-text text-muted" id="nicknameHelp">
+                Длина: от 3 до 32 символов<br>
+                Может содержать только латинские буквы, арабские цифры и знаки подчёркивания
+            </div>
+            {% for error in form.nickname.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
         </div>
         <div class="col-auto mb-3">
             {{ form.email.label }}
@@ -48,7 +53,12 @@
         </div>
         <div class="col-auto mb-3">
             {{ form.password.label }}
-            {{ form.password(class="form-control", type="password") }}
+            {{ form.password(class="form-control", type="password", aria_describedby="passwordHelp",
+                             minlength="8", maxlength="512") }}
+            <div class="form-text text-muted" id="passwordHelp">
+                Длина: от 8 до 512 символов<br>
+                Должен содержать минимум 1 непробельный символ
+            </div>
             {% for error in form.password.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}

@@ -1,16 +1,34 @@
 from random import choices
-from string import ascii_letters, digits
+from string import ascii_letters, digits, ascii_lowercase, ascii_uppercase, punctuation
 import os
 from io import BytesIO
 from datetime import datetime
 from PIL import Image
 from flask_login import login_user
+from sqlalchemy import func
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
-    UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError, UnknownFilterError
+    UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError, \
+    UnknownFilterError, IncorrectNicknameLengthError, NicknameContainsInvalidCharactersError, \
+    IncorrectPasswordLengthError, NotSecurePasswordError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
+
+
+def check_nickname(nickname):
+    if not(3 <= len(nickname) <= 32):
+        raise IncorrectNicknameLengthError
+    valid_characters = ascii_letters + digits + "_"
+    if any(map(lambda x: x not in valid_characters, nickname)):
+        raise NicknameContainsInvalidCharactersError
+
+
+def check_password(password):
+    if not(8 <= len(password) <= 512):
+        raise IncorrectPasswordLengthError
+    if not password.strip():
+        raise NotSecurePasswordError
 
 
 class UserModelWorker:
@@ -30,6 +48,8 @@ class UserModelWorker:
         if nickname_search_string is not None:
             if nickname_filter == "equals":
                 users = users.filter(User.nickname == nickname_search_string)
+            elif nickname_filter == "equals_case_insensitive":
+                users = users.filter(User.nickname.like(nickname_search_string))
             elif nickname_filter == "starts":
                 users = users.filter(User.nickname.like(f"{nickname_search_string}%"))
             elif nickname_filter == "ends":
@@ -58,6 +78,8 @@ class UserModelWorker:
     def new_user(user_data):
         if user_data["password"] != user_data["password_again"]:
             raise PasswordMismatchError
+        check_password(user_data["password"])
+        check_nickname(user_data["nickname"])
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == user_data["email"]).first():
             raise EmailAlreadyUseError
@@ -92,7 +114,10 @@ class UserModelWorker:
                 User.nickname == user_data["nickname"], User.id != user_id
         ).first():
             raise UserAlreadyExistError
-        if user_data.get("new_password") is not None:
+        if user_data.get("nickname") is not None:
+            check_nickname(user_data["nickname"])
+        if user_data.get("new_password"):
+            check_password(user_data["new_password"])
             if user_data["new_password"] != user_data.get("new_password_again"):
                 raise PasswordMismatchError
             user.set_password(user_data["new_password"])

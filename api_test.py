@@ -47,7 +47,7 @@ if not register_response:
 
 '''login_response = post("http://localhost:5000/api/login", json={
     "email": "test_email5@test.test",
-    "password": "q"
+    "password": "        1"
 })
 print(login_response.json())
 if not login_response:

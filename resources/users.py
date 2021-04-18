@@ -4,7 +4,8 @@ from flask_login import login_required, current_user
 from model_workers.user import UserModelWorker
 from parsers import login_parser, register_parser, get_user_parser, put_user_parser
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
-    UserAlreadyExistError, EmailAlreadyUseError
+    UserAlreadyExistError, EmailAlreadyUseError, IncorrectNicknameLengthError, \
+    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, NotSecurePasswordError
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.image_to_byte_array import image_to_byte_array
 from tools.constants import USERS_AVATARS_DIR
@@ -69,6 +70,14 @@ class UserResource(Resource):
             fr_abort(400, message=f"User @{args['nickname']} already exist")
         except EmailAlreadyUseError:
             fr_abort(400, message=f"Email {args['email']} already use")
+        except IncorrectNicknameLengthError:
+            fr_abort(400, message="Length of the nickname must be between 3 and 32")
+        except NicknameContainsInvalidCharactersError:
+            fr_abort(400, message="Nickname contains invalid characters")
+        except IncorrectPasswordLengthError:
+            fr_abort(400, message="Length of password must be between 8 and 512")
+        except NotSecurePasswordError:
+            fr_abort(400, message="Password must contain at least 1 non-whitespace character")
         else:
             return jsonify({"success": "ok"})
 
@@ -105,6 +114,14 @@ class UsersListResource(Resource):
             fr_abort(400, message=f"User @{args['nickname']} already exist")
         except EmailAlreadyUseError:
             fr_abort(400, message=f"Email {args['email']} already use")
+        except IncorrectNicknameLengthError:
+            fr_abort(400, message="Length of the nickname must be between 3 and 32")
+        except NicknameContainsInvalidCharactersError:
+            fr_abort(400, message="Nickname contains invalid characters")
+        except IncorrectPasswordLengthError:
+            fr_abort(400, message="Length of password must be between 8 and 512")
+        except NotSecurePasswordError:
+            fr_abort(400, message="Password must contain at least 1 non-whitespace character")
         else:
             return jsonify({"success": "ok"})
 

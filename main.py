@@ -20,7 +20,8 @@ from model_workers.comment import CommentModelWorker
 from model_workers.article_like import ArticleLikeModelWorker
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError, \
-    UserNotFoundError, ForbiddenToUserError
+    UserNotFoundError, ForbiddenToUserError, IncorrectNicknameLengthError, \
+    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, NotSecurePasswordError
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
@@ -80,6 +81,31 @@ def register():
                                    title=title,
                                    form=form,
                                    message="Такой пользователь уже есть",
+                                   message_class="alert-danger")
+        except IncorrectNicknameLengthError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Длина никнейма должна быть от 3 до 32 символов",
+                                   message_class="alert-danger")
+        except NicknameContainsInvalidCharactersError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Никнейм может содержать только буквы латинского "
+                                           "алфавита, арабские цифры и знаки подчёркивания",
+                                   message_class="alert-danger")
+        except IncorrectPasswordLengthError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Длина пароля должна быть от 8 до 512 символов",
+                                   message_class="alert-danger")
+        except NotSecurePasswordError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Пароль должен содержать минимум 1 непробельный символ",
                                    message_class="alert-danger")
         return redirect("/login")
     return render_template(template_name, title=title, form=form)
@@ -162,6 +188,31 @@ def edit_user():
                                    title=title,
                                    form=form,
                                    message="Пароли не совпадают",
+                                   message_class="alert-danger")
+        except IncorrectNicknameLengthError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Длина никнейма должна быть от 3 до 32 символов",
+                                   message_class="alert-danger")
+        except NicknameContainsInvalidCharactersError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Никнейм может содержать только буквы латинского "
+                                           "алфавита, арабские цифры и знаки подчёркивания",
+                                   message_class="alert-danger")
+        except IncorrectPasswordLengthError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Длина пароля должна быть от 8 до 512 символов",
+                                   message_class="alert-danger")
+        except NotSecurePasswordError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Пароль должен содержать минимум 1 непробельный символ",
                                    message_class="alert-danger")
         return redirect(f"/user_page/{user.id}")
     return render_template(template_name, title=title, form=form)

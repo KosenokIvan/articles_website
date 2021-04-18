@@ -20,9 +20,12 @@ class ArticleModelWorker:
         return article.to_dict(only=fields)
 
     @staticmethod
-    def get_all_articles(fields=("id", "title"), sorted_by="create_date", limit=None, offset=None):
+    def get_all_articles(fields=("id", "title"), author=None,
+                         sorted_by="create_date", limit=None, offset=None):
         db_sess = db_session.create_session()
         articles = db_sess.query(Article)
+        if author is not None:
+            articles = articles.filter(Article.author == author)
         if sorted_by == "create_date":
             articles = articles.order_by(Article.create_date.desc())
         else:

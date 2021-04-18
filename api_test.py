@@ -57,5 +57,5 @@ delete_response = delete("http://localhost:5000/api/user/5", cookies=login_respo
 print(delete_response.json())'''
 
 print(get("http://localhost:5000/api/articles"
-          "?sorted_by=likes_count&get_field=id&get_field=title&get_field=likes_count").json())
+          "?sorted_by=likes_count&get_field=id&get_field=title&author=4").json())
 print(get("http://localhost:5000/api/users?nickname_search_string=ra&nickname_filter=starts").json())

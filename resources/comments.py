@@ -3,11 +3,24 @@ from flask_restful import abort as fr_abort, Resource
 from parsers import get_comment_parser
 from tools.image_to_byte_array import image_to_byte_array
 from tools.constants import COMMENTS_IMAGES_DIR
+from tools.errors import CommentNotFoundError
 from model_workers.comment import CommentModelWorker
 
 
 class CommentResource(Resource):
-    pass
+    def get(self, comment_id):
+        args = get_comment_parser.parser.parse_args()
+        try:
+            comment = CommentModelWorker.get_comment(comment_id, args["get_field"])
+        except CommentNotFoundError:
+            fr_abort(404, message=f"Comment {comment_id} not found")
+        else:
+            if "image" in comment:
+                if comment["image"] is not None:
+                    comment["image"] = image_to_byte_array(
+                        f"{COMMENTS_IMAGES_DIR}/{comment['image']}"
+                    ).hex()
+            return jsonify({"comment": comment})
 
 
 class CommentsListResource(Resource):

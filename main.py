@@ -374,7 +374,7 @@ def delete_comment(comment_id):
     if comment.user != current_user:
         abort(403)
     article_id = comment.article_id
-    CommentModelWorker.delete_comment(comment_id)
+    CommentModelWorker.delete_comment(comment_id, current_user.id)
     return redirect(f"/article/{article_id}")
 
 

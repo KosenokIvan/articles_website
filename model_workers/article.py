@@ -8,6 +8,7 @@ from data import db_session
 from tools.errors import ArticleNotFoundError, ForbiddenToUserError
 from tools.get_image_path import get_image_path
 from tools.constants import ARTICLES_IMAGES_DIR
+from model_workers.comment import CommentModelWorker
 
 
 class ArticleModelWorker:
@@ -85,6 +86,8 @@ class ArticleModelWorker:
             raise ForbiddenToUserError
         if article.image:
             os.remove(f"{ARTICLES_IMAGES_DIR}/{article.image}")
+        for comment in article.comments:
+            CommentModelWorker.delete_comment(comment.id, comment.author)
         db_sess.delete(article)
         db_sess.commit()
 

@@ -1,9 +1,11 @@
 from flask import jsonify
 from flask_restful import abort as fr_abort, Resource
-from parsers import get_comment_parser
+from flask_login import current_user, login_required
+from parsers import get_comment_parser, add_comment_parser, put_comment_parser
 from tools.image_to_byte_array import image_to_byte_array
+from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.constants import COMMENTS_IMAGES_DIR
-from tools.errors import CommentNotFoundError
+from tools.errors import CommentNotFoundError, ArticleNotFoundError, ForbiddenToUserError
 from model_workers.comment import CommentModelWorker
 
 
@@ -22,6 +24,32 @@ class CommentResource(Resource):
                     ).hex()
             return jsonify({"comment": comment})
 
+    @login_required
+    def put(self, comment_id):
+        args = put_comment_parser.parser.parse_args()
+        comment_data = {"text": args["text"]}
+        if args.get("image") is not None:
+            comment_data["image"] = hex_image_to_file_storage(args["image"])
+        try:
+            CommentModelWorker.edit_comment(comment_id, current_user.id, comment_data)
+        except CommentNotFoundError:
+            fr_abort(404, message=f"Comment {comment_id} not found")
+        except ForbiddenToUserError:
+            fr_abort(403, message=f"User {current_user.id} is not author of comment {comment_id}")
+        else:
+            return jsonify({"success": "ok"})
+
+    @login_required
+    def delete(self, comment_id):
+        try:
+            CommentModelWorker.delete_comment(comment_id, current_user.id)
+        except CommentNotFoundError:
+            fr_abort(404, message=f"Comment {comment_id} not found")
+        except ForbiddenToUserError:
+            fr_abort(403, message=f"User {current_user.id} is not author of comment {comment_id}")
+        else:
+            return jsonify({"success": "ok"})
+
 
 class CommentsListResource(Resource):
     def get(self):
@@ -36,3 +64,20 @@ class CommentsListResource(Resource):
                         f"{COMMENTS_IMAGES_DIR}/{comment['image']}"
                     ).hex()
         return jsonify({"comments": comments})
+
+    @login_required
+    def post(self):
+        args = add_comment_parser.parser.parse_args()
+        comment_data = {
+            "author": current_user.id,
+            "article_id": args["article_id"],
+            "text": args["text"]
+        }
+        if args["image"] is not None:
+            comment_data["image"] = hex_image_to_file_storage(args["image"])
+        try:
+            CommentModelWorker.new_comment(comment_data)
+        except ArticleNotFoundError:
+            fr_abort(404, message=f"Article {args['article_id']} not found")
+        else:
+            return jsonify({"success": "ok"})

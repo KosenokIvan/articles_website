@@ -45,7 +45,7 @@ class CommentModelWorker:
             article_id=comment_data["article_id"],
             text=comment_data["text"]
         )
-        if comment_data["image"]:
+        if comment_data.get("image"):
             image = Image.open(BytesIO(comment_data["image"].read()))
             filename = get_image_path(COMMENTS_IMAGES_DIR)
             image.save(f"{COMMENTS_IMAGES_DIR}/{filename}")
@@ -61,8 +61,9 @@ class CommentModelWorker:
             raise CommentNotFoundError
         if comment.author != user_id:
             raise ForbiddenToUserError
-        comment.text = comment_data["text"]
-        if comment_data["image"]:
+        if comment_data.get("text") is not None:
+            comment.text = comment_data["text"]
+        if comment_data.get("image"):
             image = Image.open(BytesIO(comment_data["image"].read()))
             filename = get_image_path(COMMENTS_IMAGES_DIR)
             image.save(f"{COMMENTS_IMAGES_DIR}/{filename}")
@@ -72,11 +73,13 @@ class CommentModelWorker:
         db_sess.commit()
 
     @staticmethod
-    def delete_comment(comment_id):
+    def delete_comment(comment_id, user_id):
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
         if not comment:
             raise CommentNotFoundError
+        if comment.author != user_id:
+            raise ForbiddenToUserError
         if comment.image:
             os.remove(f"{COMMENTS_IMAGES_DIR}/{comment.image}")
         db_sess.delete(comment)

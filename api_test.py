@@ -56,7 +56,18 @@ if not login_response:
 delete_response = delete("http://localhost:5000/api/user/5", cookies=login_response.cookies)
 print(delete_response.json())'''
 
-print(get("http://localhost:5000/api/articles"
+'''print(get("http://localhost:5000/api/articles"
           "?sorted_by=likes_count&get_field=id&get_field=title&author=4").json())
 print(get("http://localhost:5000/api/users?nickname_search_string=ra&nickname_filter=starts").json())
-print(get("http://localhost:5000/api/comment/4?get_field=image").json())
+print(get("http://localhost:5000/api/comment/4?get_field=image").json())'''
+
+login_response = post("http://localhost:5000/api/login", json={
+    "email": "razor@mail.wolvendom",
+    "password": "q"
+})
+print(login_response.json())
+if not login_response:
+    exit()
+
+response = delete("http://localhost:5000/api/comment/4", cookies=login_response.cookies)
+print(response.json())

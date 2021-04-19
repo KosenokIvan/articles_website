@@ -7,6 +7,16 @@ from model_workers.article import ArticleModelWorker
 
 class ArticleLikeModelWorker:
     @staticmethod
+    def like_exist(like_data):
+        db_sess = db_session.create_session()
+        if db_sess.query(ArticleLike).filter(
+                ArticleLike.user_id == like_data["user_id"],
+                ArticleLike.article_id == like_data["article_id"]
+        ).first():
+            return True
+        return False
+
+    @staticmethod
     def new_like(like_data):
         db_sess = db_session.create_session()
         if db_sess.query(ArticleLike).filter(

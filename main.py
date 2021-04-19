@@ -28,6 +28,7 @@ from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
 from resources.users import LoginResource, UserResource, UsersListResource
 from resources.comments import CommentResource, CommentsListResource
+from resources.article_likes import ArticleLikeResource
 
 app = Flask(__name__)
 api = Api(app)
@@ -453,4 +454,5 @@ if __name__ == '__main__':
     api.add_resource(UsersListResource, "/api/users")
     api.add_resource(CommentResource, "/api/comment/<int:comment_id>")
     api.add_resource(CommentsListResource, "/api/comments")
+    api.add_resource(ArticleLikeResource, "/api/like/<int:article_id>")
     app.run()

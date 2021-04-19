@@ -69,5 +69,11 @@ print(login_response.json())
 if not login_response:
     exit()
 
-response = delete("http://localhost:5000/api/comment/4", cookies=login_response.cookies)
-print(response.json())
+'''response = delete("http://localhost:5000/api/comment/4", cookies=login_response.cookies)
+print(response.json())'''
+
+print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
+print(post("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
+print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
+print(delete("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
+print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())

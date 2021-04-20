@@ -1,7 +1,7 @@
 from io import BytesIO
 from flask import jsonify
 from flask_restful import abort as fr_abort, Resource
-from flask_login import current_user, login_required
+from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from parsers import add_article_parser, get_article_parser, put_article_parser
 from model_workers.article import ArticleModelWorker
@@ -9,6 +9,7 @@ from tools.errors import ArticleNotFoundError, ForbiddenToUserError
 from tools.image_to_byte_array import image_to_byte_array
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.constants import ARTICLES_IMAGES_DIR
+from tools.check_authorization import check_authorization
 
 
 class ArticleResource(Resource):
@@ -26,9 +27,9 @@ class ArticleResource(Resource):
                     ).hex()
             return jsonify({"article": article})
 
-    @login_required
     def put(self, article_id):
         args = put_article_parser.parser.parse_args()
+        check_authorization()
         article_data = {}
         keys = ("title", "content")
         for key in keys:
@@ -45,8 +46,8 @@ class ArticleResource(Resource):
         else:
             return jsonify({"success": "ok"})
 
-    @login_required
     def delete(self, article_id):
+        check_authorization()
         try:
             ArticleModelWorker.delete_article(article_id, current_user.id)
         except ArticleNotFoundError:
@@ -58,9 +59,9 @@ class ArticleResource(Resource):
 
 
 class ArticlesListResource(Resource):
-    @login_required
     def post(self):
         args = add_article_parser.parser.parse_args()
+        check_authorization()
         article_data = {
             "title": args["title"],
             "content": args["content"],

@@ -1,6 +1,6 @@
 from flask import jsonify
 from flask_restful import abort as fr_abort, Resource
-from flask_login import login_required, current_user
+from flask_login import current_user
 from model_workers.user import UserModelWorker
 from parsers import login_parser, register_parser, get_user_parser, put_user_parser
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
@@ -9,6 +9,7 @@ from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMism
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.image_to_byte_array import image_to_byte_array
 from tools.constants import USERS_AVATARS_DIR
+from tools.check_authorization import check_authorization
 
 
 class LoginResource(Resource):
@@ -44,9 +45,9 @@ class UserResource(Resource):
         else:
             return jsonify({"user": user})
 
-    @login_required
     def put(self, user_id):
         args = put_user_parser.parser.parse_args()
+        check_authorization()
         if current_user.id != user_id:
             fr_abort(403, message=f"User {current_user.id} can't edit page of the user {user_id}")
         user_data = {
@@ -82,8 +83,8 @@ class UserResource(Resource):
         else:
             return jsonify({"success": "ok"})
 
-    @login_required
     def delete(self, user_id):
+        check_authorization()
         if current_user.id != user_id:
             fr_abort(403, message=f"User {current_user.id} can't edit page of the user {user_id}")
         try:

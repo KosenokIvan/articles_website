@@ -76,4 +76,8 @@ print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).j
 print(post("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
 print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
 print(delete("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
-print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
+print(get("http://localhost:5000/api/like/36").json())
+print(post("http://localhost:5000/api/comments", json={
+    "text": "No authorized",
+    "article_id": 36
+}).json())

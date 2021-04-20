@@ -146,11 +146,13 @@ class UserModelWorker:
         db_sess.commit()
 
     @staticmethod
-    def delete_user(user_id):
+    def delete_user(user_id, user_password):
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:
             raise UserNotFoundError
+        if not user.check_password(user_password):
+            raise IncorrectPasswordError
         if user.avatar is not None:
             os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
         for like in user.likes:

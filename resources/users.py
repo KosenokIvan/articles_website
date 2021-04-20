@@ -2,7 +2,8 @@ from flask import jsonify
 from flask_restful import abort as fr_abort, Resource
 from flask_login import current_user, logout_user
 from model_workers.user import UserModelWorker
-from parsers import login_parser, register_parser, get_user_parser, put_user_parser
+from parsers import login_parser, register_parser, get_user_parser, \
+    put_user_parser, delete_user_parser
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
     UserAlreadyExistError, EmailAlreadyUseError, IncorrectNicknameLengthError, \
     NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, NotSecurePasswordError
@@ -90,13 +91,16 @@ class UserResource(Resource):
             return jsonify({"success": "ok"})
 
     def delete(self, user_id):
+        args = delete_user_parser.parser.parse_args()
         check_authorization()
         if current_user.id != user_id:
             fr_abort(403, message=f"User {current_user.id} can't edit page of the user {user_id}")
         try:
-            UserModelWorker.delete_user(user_id)
+            UserModelWorker.delete_user(user_id, args["password"])
         except UserNotFoundError:
             fr_abort(404, message=f"User {user_id} not found")
+        except IncorrectPasswordError:
+            fr_abort(400, message="Incorrect password")
         return jsonify({"success": "ok"})
 
 

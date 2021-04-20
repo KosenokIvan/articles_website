@@ -1,6 +1,6 @@
 from flask import jsonify
 from flask_restful import abort as fr_abort, Resource
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from model_workers.user import UserModelWorker
 from parsers import login_parser, register_parser, get_user_parser, put_user_parser
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
@@ -29,6 +29,12 @@ class LoginResource(Resource):
             return jsonify({"success": "ok"})
 
 
+class LogoutResource(Resource):
+    def post(self):
+        check_authorization()
+        logout_user()
+
+
 class UserResource(Resource):
     def get(self, user_id):
         args = get_user_parser.parser.parse_args()
@@ -37,7 +43,7 @@ class UserResource(Resource):
                       "description", "avatar", "modified_date")
         else:
             fields = ("id", "nickname", "description", "avatar")
-        fields = (field for field in fields if field in args["get_field"])
+        fields = tuple(field for field in fields if field in args["get_field"])
         try:
             user = UserModelWorker.get_user(user_id, fields)
         except UserNotFoundError:

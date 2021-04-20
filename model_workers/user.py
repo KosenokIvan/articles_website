@@ -34,6 +34,8 @@ def check_password(password):
 class UserModelWorker:
     @staticmethod
     def get_user(user_id, fields=("id", "nickname")):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:
@@ -43,6 +45,8 @@ class UserModelWorker:
     @staticmethod
     def get_all_users(fields=("id", "nickname"), limit=None, offset=None,
                       nickname_search_string=None, nickname_filter="equals"):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         users = db_sess.query(User)
         if nickname_search_string is not None:

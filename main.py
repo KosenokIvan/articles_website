@@ -26,7 +26,7 @@ from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
-from resources.users import LoginResource, UserResource, UsersListResource
+from resources.users import LoginResource, UserResource, UsersListResource, LogoutResource
 from resources.comments import CommentResource, CommentsListResource
 from resources.article_likes import ArticleLikeResource
 
@@ -450,6 +450,7 @@ if __name__ == '__main__':
     api.add_resource(ArticleResource, "/api/article/<int:article_id>")
     api.add_resource(ArticlesListResource, "/api/articles")
     api.add_resource(LoginResource, "/api/login")
+    api.add_resource(LogoutResource, "/api/logout")
     api.add_resource(UserResource, "/api/user/<int:user_id>")
     api.add_resource(UsersListResource, "/api/users")
     api.add_resource(CommentResource, "/api/comment/<int:comment_id>")

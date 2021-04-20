@@ -14,6 +14,8 @@ from tools.constants import COMMENTS_IMAGES_DIR
 class CommentModelWorker:
     @staticmethod
     def get_comment(comment_id, fields=("id", "author", "article_id")):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
         if not comment:
@@ -23,6 +25,8 @@ class CommentModelWorker:
     @staticmethod
     def get_all_comments(fields=("id", "author", "article_id"), author=None, article=None,
                          limit=None, offset=None):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         comments = db_sess.query(Comment)
         if author is not None:

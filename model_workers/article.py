@@ -14,6 +14,8 @@ from model_workers.comment import CommentModelWorker
 class ArticleModelWorker:
     @staticmethod
     def get_article(article_id, fields=("id", "title")):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         article = db_sess.query(Article).get(article_id)
         if not article:
@@ -23,6 +25,8 @@ class ArticleModelWorker:
     @staticmethod
     def get_all_articles(fields=("id", "title"), author=None,
                          sorted_by="create_date", limit=None, offset=None):
+        if not fields:
+            fields = ("id",)
         db_sess = db_session.create_session()
         articles = db_sess.query(Article)
         if author is not None:

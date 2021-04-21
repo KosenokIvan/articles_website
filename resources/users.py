@@ -6,7 +6,8 @@ from parsers import login_parser, register_parser, get_user_parser, \
     put_user_parser, delete_user_parser
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
     UserAlreadyExistError, EmailAlreadyUseError, IncorrectNicknameLengthError, \
-    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, NotSecurePasswordError
+    NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, \
+    NotSecurePasswordError, IncorrectImageError, IncorrectEmailFormatError
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.image_to_byte_array import image_to_byte_array
 from tools.constants import USERS_AVATARS_DIR
@@ -72,9 +73,9 @@ class UserResource(Resource):
                 "description": args["description"],
                 "password": args["password"]
             }
-        if args.get("avatar") is not None:
-            user_data["avatar"] = hex_image_to_file_storage(args["avatar"])
         try:
+            if args.get("avatar") is not None:
+                user_data["avatar"] = hex_image_to_file_storage(args["avatar"])
             UserModelWorker.edit_user(user_id, user_data)
         except IncorrectPasswordError:
             fr_abort(400, message="Incorrect password")
@@ -92,6 +93,10 @@ class UserResource(Resource):
             fr_abort(400, message="Length of password must be between 8 and 512")
         except NotSecurePasswordError:
             fr_abort(400, message="Password must contain at least 1 non-whitespace character")
+        except IncorrectImageError:
+            fr_abort(400, message="Incorrect image")
+        except IncorrectEmailFormatError:
+            fr_abort(400, message="Incorrect email format")
         else:
             return jsonify({"success": "ok"})
 
@@ -121,9 +126,9 @@ class UsersListResource(Resource):
             "password_again": args["password_again"],
             "description": args["description"]
         }
-        if args.get("avatar") is not None:
-            user_data["avatar"] = hex_image_to_file_storage(args["avatar"])
         try:
+            if args.get("avatar") is not None:
+                user_data["avatar"] = hex_image_to_file_storage(args["avatar"])
             UserModelWorker.new_user(user_data)
         except PasswordMismatchError:
             fr_abort(400, message="Password mismatch")
@@ -139,6 +144,10 @@ class UsersListResource(Resource):
             fr_abort(400, message="Length of password must be between 8 and 512")
         except NotSecurePasswordError:
             fr_abort(400, message="Password must contain at least 1 non-whitespace character")
+        except IncorrectImageError:
+            fr_abort(400, message="Incorrect image")
+        except IncorrectEmailFormatError:
+            fr_abort(400, message="Incorrect email format")
         else:
             return jsonify({"success": "ok"})
 

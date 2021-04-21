@@ -22,7 +22,7 @@ from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, ArticleNotFoundError, LikeAlreadyThereError, \
     UserNotFoundError, ForbiddenToUserError, IncorrectNicknameLengthError, \
     NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, \
-    NotSecurePasswordError, CommentNotFoundError
+    NotSecurePasswordError, CommentNotFoundError, IncorrectImageError, IncorrectEmailFormatError
 from parsers.redirect_url import parser as redirect_url_parser
 from parsers.sorted_by import parser as sorted_by_parser
 from resources.articles import ArticleResource, ArticlesListResource
@@ -109,6 +109,18 @@ def register():
                                    title=title,
                                    form=form,
                                    message="Пароль должен содержать минимум 1 непробельный символ",
+                                   message_class="alert-danger")
+        except IncorrectImageError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Не удалось обработать изображение",
+                                   message_class="alert-danger")
+        except IncorrectEmailFormatError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Некорректный формат email",
                                    message_class="alert-danger")
         return redirect("/login")
     return render_template(template_name, title=title, form=form)
@@ -216,6 +228,18 @@ def edit_user():
                                    title=title,
                                    form=form,
                                    message="Пароль должен содержать минимум 1 непробельный символ",
+                                   message_class="alert-danger")
+        except IncorrectImageError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Не удалось обработать изображение",
+                                   message_class="alert-danger")
+        except IncorrectEmailFormatError:
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   message="Некорректный формат email",
                                    message_class="alert-danger")
         return redirect(f"/user_page/{user.id}?sorted_by={session.get('sorted_by', 'create_date')}")
     return render_template(template_name, title=title, form=form)

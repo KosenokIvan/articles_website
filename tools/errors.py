@@ -56,3 +56,11 @@ class IncorrectPasswordLengthError(Exception):
 
 class NotSecurePasswordError(Exception):
     pass
+
+
+class IncorrectImageError(Exception):
+    pass
+
+
+class IncorrectEmailFormatError(Exception):
+    pass

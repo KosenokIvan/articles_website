@@ -16,6 +16,8 @@ UNAUTHORIZED = 9
 USER_NOT_FOUND = 10
 PARAMETER_NOT_SPECIFIED = 11
 FORBIDDEN = 12
+INCORRECT_IMAGE = 13
+INCORRECT_EMAIL_FORMAT = 14
 
 
 class HttpWorker:
@@ -41,6 +43,10 @@ class HttpWorker:
         message = response.json()["message"]
         if message == "Password mismatch":
             return PASSWORD_MISMATCH
+        elif message == "Incorrect image":
+            return INCORRECT_IMAGE
+        elif message == "Incorrect email format":
+            return INCORRECT_EMAIL_FORMAT
         if message.startswith("User @"):
             return USER_ALREADY_EXIST
         if message.startswith("Email"):
@@ -168,6 +174,10 @@ class TestApiApp(HttpWorker):
             print("Incorrect password length")
         elif result == NOT_SECURE_PASSWORD:
             print("Passwords contains white-spaces characters only")
+        elif result == INCORRECT_IMAGE:
+            print("Incorrect image")
+        elif result == INCORRECT_EMAIL_FORMAT:
+            print("Incorrect email format")
         TestApiApp.print_sep()
 
     def login(self, *args):

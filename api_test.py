@@ -72,7 +72,7 @@ if not login_response:
 '''response = delete("http://localhost:5000/api/comment/4", cookies=login_response.cookies)
 print(response.json())'''
 
-print(get("http://localhost:5000/api/user/2?get_field=name").json())
+'''print(get("http://localhost:5000/api/user/2?get_field=name").json())
 print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
 print(post("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
 print(get("http://localhost:5000/api/like/36", cookies=login_response.cookies).json())
@@ -80,5 +80,12 @@ print(delete("http://localhost:5000/api/like/36", cookies=login_response.cookies
 print(get("http://localhost:5000/api/like/36").json())
 print(post("http://localhost:5000/api/comments", json={
     "text": "No authorized",
+    "article_id": 36
+}).json())'''
+
+print(post("http://localhost:5000/api/comments", cookies=login_response.cookies, json={
+    "title": "q",
+    "text": "q",
+    "image": "h",
     "article_id": 36
 }).json())

@@ -5,7 +5,7 @@ from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from parsers import add_article_parser, get_article_parser, put_article_parser
 from model_workers.article import ArticleModelWorker
-from tools.errors import ArticleNotFoundError, ForbiddenToUserError
+from tools.errors import ArticleNotFoundError, ForbiddenToUserError, IncorrectImageError
 from tools.image_to_byte_array import image_to_byte_array
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.constants import ARTICLES_IMAGES_DIR
@@ -35,14 +35,16 @@ class ArticleResource(Resource):
         for key in keys:
             if key in args:
                 article_data[key] = args[key]
-        if args.get("image") is not None:
-            article_data["image"] = hex_image_to_file_storage(args["image"])
         try:
+            if args.get("image") is not None:
+                article_data["image"] = hex_image_to_file_storage(args["image"])
             ArticleModelWorker.edit_article(article_id, current_user.id, article_data)
         except ArticleNotFoundError:
             fr_abort(404, message=f"Article {article_id} not found")
         except ForbiddenToUserError:
             fr_abort(403, message=f"User {current_user.id} is not author of article {article_id}")
+        except IncorrectImageError:
+            fr_abort(400, message="Incorrect image")
         else:
             return jsonify({"success": "ok"})
 
@@ -67,9 +69,12 @@ class ArticlesListResource(Resource):
             "content": args["content"],
             "author": current_user.id
         }
-        if args.get("image") is not None:
-            article_data["image"] = hex_image_to_file_storage(args["image"])
-        ArticleModelWorker.new_article(article_data)
+        try:
+            if args.get("image") is not None:
+                article_data["image"] = hex_image_to_file_storage(args["image"])
+            ArticleModelWorker.new_article(article_data)
+        except IncorrectImageError:
+            fr_abort(400, message="Incorrect image")
         return jsonify({"success": "ok"})
 
     def get(self):

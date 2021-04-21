@@ -3,6 +3,7 @@ from string import ascii_letters, digits
 import os
 from io import BytesIO
 from datetime import datetime
+from re import fullmatch
 from PIL import Image
 from flask_login import login_user
 from data.users import User
@@ -10,7 +11,7 @@ from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError, \
     UnknownFilterError, IncorrectNicknameLengthError, NicknameContainsInvalidCharactersError, \
-    IncorrectPasswordLengthError, NotSecurePasswordError
+    IncorrectPasswordLengthError, NotSecurePasswordError, IncorrectEmailFormatError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
 from model_workers.article_like import ArticleLikeModelWorker
@@ -29,6 +30,12 @@ def check_password(password):
         raise IncorrectPasswordLengthError
     if not password.strip():
         raise NotSecurePasswordError
+
+
+def check_email(email):
+    template = r"\w+@\w+\.\w+"
+    if fullmatch(template, email) is None:
+        raise IncorrectEmailFormatError
 
 
 class UserModelWorker:
@@ -84,6 +91,7 @@ class UserModelWorker:
             raise PasswordMismatchError
         check_password(user_data["password"])
         check_nickname(user_data["nickname"])
+        check_email(user_data["email"])
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == user_data["email"]).first():
             raise EmailAlreadyUseError
@@ -120,6 +128,8 @@ class UserModelWorker:
             raise UserAlreadyExistError
         if user_data.get("nickname") is not None:
             check_nickname(user_data["nickname"])
+        if user_data.get("email") is not None:
+            check_nickname(user_data["email"])
         if user_data.get("new_password"):
             check_password(user_data["new_password"])
             if user_data["new_password"] != user_data.get("new_password_again"):

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macro.html" import comment_card, datetime_to_string, like_btn %}
+{% from "macro.html" import comment_card, datetime_to_string, like_btn, edit_btn, delete_btn %}
 
 {% block content %}
     <div class="col-auto">
@@ -9,10 +9,8 @@
             {{ article.title }}
             {% if current_user == article.user %}
                 <span style="float: right">
-                    <a href="/edit_article/{{ article.id }}"
-                       class="btn btn-warning">Изменить статью</a>
-                    <a href="/delete_article/{{ article.id }}"
-                       class="btn btn-danger">Удалить статью</a>
+                    {{ edit_btn("/edit_article/" + article.id|string) }}
+                    {{ delete_btn("/delete_article/" + article.id|string, "deleteModal") }}
                 </span>
             {% endif %}
         </h4>

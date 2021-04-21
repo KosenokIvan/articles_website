@@ -15,11 +15,38 @@
         {% if is_liked %}
             btn-success
         {% else %}
-            btn-secondary
+            btn-outline-success
         {% endif %}
         {% if is_disabled %}
             disabled
         {% endif %}">Лайков: {{ likes_count }}</a>
+{% endmacro %}
+
+{% macro edit_btn(href) %}
+    <a href="{{ href }}"
+       class="btn btn-outline-warning">Изменить</a>
+{% endmacro %}
+
+{% macro delete_btn(href, modal_id) %}
+    <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
+        Удалить
+    </button>
+    <div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true" aria-labelledby="{{ modal_id }}Label">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ modal_id }}Label">Подтвердить удаление</h5>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите совершить удаление? Это действие невозможно отменить!
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="button" data-bs-dismiss="modal">Нет</button>
+                    <a href="{{ href }}" class="btn btn-outline-danger">Да, уверен(а)</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}
 
 {% macro article_card(article, current_user, url="/") %}
@@ -31,10 +58,8 @@
                 {{ article.title }}
                 {% if current_user == article.user %}
                     <span style="float: right">
-                        <a href="/edit_article/{{ article.id }}"
-                           class="btn btn-warning">Изменить статью</a>
-                        <a href="/delete_article/{{ article.id }}"
-                           class="btn btn-danger">Удалить статью</a>
+                        {{ edit_btn("/edit_article/" + article.id|string) }}
+                        {{ delete_btn("/delete_article/" + article.id|string, "articleModal" + article.id|string) }}
                     </span>
                 {% endif %}
             </h4>
@@ -66,10 +91,8 @@
                 <a href="/user_page/{{ comment.author }}">@{{ comment.user.nickname }}</a>
                 {% if current_user == comment.user %}
                     <span style="float: right">
-                        <a href="/edit_comment/{{ comment.id }}"
-                           class="btn btn-warning">Изменить</a>
-                        <a href="/delete_comment/{{ comment.id }}"
-                           class="btn btn-danger">Удалить</a>
+                        {{ edit_btn("/edit_comment/" + comment.id|string) }}
+                        {{ delete_btn("/delete_comment/" + comment.id|string, "commentModal" + comment.id|string) }}
                     </span>
                 {% endif %}
             </h5>

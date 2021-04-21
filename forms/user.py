@@ -33,5 +33,10 @@ class EditUserForm(FlaskForm):
     new_password_again = PasswordField("Повторите пароль")
     description = TextAreaField("Описание (не более 4096 символов)")
     avatar = FileField("Аватар", validators=[FileAllowed(["png", "jpg", "jpeg"])])
-    password = PasswordField("Текущий пароль", validators=[DataRequired()])
+    password = PasswordField("Введите текущий пароль для подтверждения", validators=[DataRequired()])
     submit = SubmitField("Подтвердить")
+
+
+class DeleteUserForm(FlaskForm):
+    password = PasswordField("Введите текущий пароль для подтверждения", validators=[DataRequired()])
+    submit = SubmitField("Да, уверен(а)")

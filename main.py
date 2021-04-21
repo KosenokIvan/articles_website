@@ -11,7 +11,7 @@ from data.users import User
 from data.articles import Article
 from data.comments import Comment
 from data.likes import ArticleLike
-from forms.user import RegisterForm, LoginForm, EditUserForm
+from forms.user import RegisterForm, LoginForm, EditUserForm, DeleteUserForm
 from forms.article import ArticleForm
 from forms.comment import CommentForm
 from model_workers.user import UserModelWorker
@@ -221,6 +221,27 @@ def edit_user():
     return render_template(template_name, title=title, form=form)
 
 
+@app.route("/delete_user", methods=["GET", "POST"])
+@login_required
+def delete_user():
+    template_name = "delete_user.html"
+    title = "Удалить аккаунт"
+    form = DeleteUserForm()
+    if form.validate_on_submit():
+        try:
+            UserModelWorker.delete_user(current_user.id, form.password.data)
+        except UserNotFoundError:
+            abort(404)
+        except IncorrectPasswordError:
+            return render_template(template_name, title=title,
+                                   form=form, sorted_by=session.get("sorted_by", "create_date"),
+                                   message="Неверный пароль", message_class="alert-danger")
+        else:
+            return redirect(f"/page1?sorted_by={session.get('sorted_by', 'create_date')}")
+    return render_template(template_name, title=title,
+                           form=form, sorted_by=session.get("sorted_by", "create_date"))
+
+
 @app.route("/user_page/<int:user_id>")
 @app.route("/user_page/<int:user_id>/page<int:page_index>")
 def user_page(user_id, page_index=1):
@@ -236,11 +257,13 @@ def user_page(user_id, page_index=1):
                           (0 if user_articles_count % articles_count == 0 else 1)), 1)
     if page_index > max_page_index:
         abort(404)
-    if args["sorted_by"] == "create_date":
-        sorted_key = lambda x: x.create_date
-    else:
-        sorted_key = lambda x: (x.likes_count, x.create_date)
-    articles = sorted(user.articles, key=sorted_key, reverse=True)[
+    articles = sorted(
+        user.articles,
+        key=(lambda x: x.create_date)
+        if args["sorted_by"] == "create_date"
+        else (lambda x: (x.likes_count, x.create_date)),
+        reverse=True
+    )[
                (page_index - 1) * articles_count:page_index * articles_count
                ]
     return render_template("user_page.html", title=f"@{user.nickname}", user=user,

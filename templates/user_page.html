@@ -8,8 +8,9 @@
     </h3>
     <p class="preserve-line-breaks">{% if user.description %}{{ user.description }}{% else %}&lt;Описание отсутствует&gt;{% endif %}</p>
     {% if current_user == user %}
-    <a href="/article" class="btn btn-primary">Добавить статью</a>
-    <a href="/edit_user" class="btn btn-secondary">Редактировать аккаунт</a>
+        <a href="/article" class="btn btn-primary">Добавить статью</a>
+        <a href="/edit_user" class="btn btn-outline-dark">Редактировать аккаунт</a>
+        <a href="/delete_user" class="btn btn-outline-danger">Удалить аккаунт</a>
     {% endif %}
     <hr>
     {% set page_links_count = 9 %} {# Обязательно нечётное число!!! #}

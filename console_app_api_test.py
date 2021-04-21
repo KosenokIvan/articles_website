@@ -83,6 +83,7 @@ class HttpWorker:
     def delete_user_(self, user_id, password):
         response = self.session.delete(f"{WEB_ADDRESS}/user/{user_id}", json={"password": password})
         if response:
+            del self.session.cookies["session"]
             return SUCCESS
         if response.status_code == 404:
             return USER_NOT_FOUND

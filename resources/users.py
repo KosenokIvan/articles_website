@@ -50,6 +50,11 @@ class UserResource(Resource):
         except UserNotFoundError:
             fr_abort(404, message=f"User {user_id} not found")
         else:
+            if "avatar" in fields:
+                if user["avatar"] is not None:
+                    user["avatar"] = image_to_byte_array(
+                        f"{USERS_AVATARS_DIR}/{user['avatar']}"
+                    ).hex()
             return jsonify({"user": user})
 
     def put(self, user_id):

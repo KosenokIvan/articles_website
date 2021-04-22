@@ -22,6 +22,7 @@ def check_nickname(nickname):
         raise IncorrectNicknameLengthError
     valid_characters = ascii_letters + digits + "_"
     if any(map(lambda x: x not in valid_characters, nickname)):
+        print(nickname)
         raise NicknameContainsInvalidCharactersError
 
 
@@ -129,7 +130,7 @@ class UserModelWorker:
         if user_data.get("nickname") is not None:
             check_nickname(user_data["nickname"])
         if user_data.get("email") is not None:
-            check_nickname(user_data["email"])
+            check_email(user_data["email"])
         if user_data.get("new_password"):
             check_password(user_data["new_password"])
             if user_data["new_password"] != user_data.get("new_password_again"):

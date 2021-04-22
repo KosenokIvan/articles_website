@@ -35,6 +35,7 @@ class LogoutResource(Resource):
     def post(self):
         check_authorization()
         logout_user()
+        return jsonify({"success": "ok"})
 
 
 class UserResource(Resource):

@@ -11,7 +11,7 @@ from data.users import User
 from data.articles import Article
 from data.comments import Comment
 from data.likes import ArticleLike
-from forms.user import RegisterForm, LoginForm, EditUserForm, DeleteUserForm
+from forms.user import RegisterForm, LoginForm, EditUserForm, DeleteUserForm, FindUserByNicknameForm
 from forms.article import ArticleForm
 from forms.comment import CommentForm
 from model_workers.user import UserModelWorker
@@ -443,6 +443,33 @@ def new_like(article_id):
             "user_id": current_user.id
         })
     return redirect(args["redirect_url"])
+
+
+@app.route("/find_users", methods=["GET", "POST"])
+def find_users():
+    form = FindUserByNicknameForm()
+    db_sess = db_session.create_session()
+    if form.validate_on_submit():
+        search_string = form.nickname_search_string.data
+        session["nickname_search_string"] = search_string
+        return redirect("/find_users")
+    search_string = session.get("nickname_search_string", "")
+    form.nickname_search_string.data = search_string
+    users_list = []
+    if len(search_string) >= 3:
+        users = UserModelWorker.get_all_users(("id", "nickname"), 20, 0, search_string,
+                                              "starts", "nickname")
+        equal_nickname = UserModelWorker.get_all_users(("id", "nickname"), 1, 0,
+                                                       search_string, "equals")
+        if equal_nickname:
+            if equal_nickname[0] in users:
+                users.insert(0, users.pop(users.index(equal_nickname[0])))
+            else:
+                users.pop(-1)
+                users.insert(0, equal_nickname[0])
+        users_list = [db_sess.query(User).get(user["id"]) for user in users]
+    return render_template("find_users.html", title="Найти пользоваеля",
+                           form=form, users_list=users_list)
 
 
 @app.route("/")

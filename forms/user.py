@@ -40,3 +40,8 @@ class EditUserForm(FlaskForm):
 class DeleteUserForm(FlaskForm):
     password = PasswordField("Введите текущий пароль для подтверждения", validators=[DataRequired()])
     submit = SubmitField("Да, уверен(а)")
+
+
+class FindUserByNicknameForm(FlaskForm):
+    nickname_search_string = StringField("Поиск по никнейму")
+    submit = SubmitField("Поиск")

@@ -19,7 +19,7 @@
         {% endif %}
         {% if is_disabled %}
             disabled
-        {% endif %}">Лайков: {{ likes_count }}</a>
+        {% endif %}" tabindex="-1">Лайков: {{ likes_count }}</a>
 {% endmacro %}
 
 {% macro edit_btn(href) %}
@@ -105,6 +105,25 @@
         <div class="card-body">
             <p class="card-text preserve-line-breaks">{{ comment.text }}</p>
         </div>
+    </div>
+{% endmacro %}
+
+{% macro user_card(user) %}
+    <div class="card user-card">
+        <div class="card-header">
+            <h4 class="card-title">
+                <img src="{{ avatar_filename(user) }}" alt="" width="48" height="48">
+                <a href="/user_page/{{ user.id }}">@{{ user.nickname }}</a>
+            </h4>
+        </div>
+        <div class="card-body">
+            {% if user.description %}
+                <p class="card-text preserve-line-breaks">{{ user.description|truncate(255) }}</p>
+            {% else %}
+                <p class="card-text">&lt;Описание отсутствует&gt;</p>
+            {% endif %}
+        </div>
+        <div class="card-footer"></div>
     </div>
 {% endmacro %}
 

@@ -61,13 +61,13 @@ print(delete_response.json())'''
 print(get("http://localhost:5000/api/users?nickname_search_string=ra&nickname_filter=starts").json())
 print(get("http://localhost:5000/api/comment/4?get_field=image").json())'''
 
-login_response = post("http://localhost:5000/api/login", json={
+"""login_response = post("http://localhost:5000/api/login", json={
     "email": "razor@mail.wolvendom",
     "password": "q"
 })
 print(login_response.json())
 if not login_response:
-    exit()
+    exit()"""
 
 '''response = delete("http://localhost:5000/api/comment/4", cookies=login_response.cookies)
 print(response.json())'''
@@ -83,9 +83,11 @@ print(post("http://localhost:5000/api/comments", json={
     "article_id": 36
 }).json())'''
 
-print(post("http://localhost:5000/api/comments", cookies=login_response.cookies, json={
+"""print(post("http://localhost:5000/api/comments", cookies=login_response.cookies, json={
     "title": "q",
     "text": "q",
     "image": "h",
     "article_id": 36
-}).json())
+}).json())"""
+
+print(get("http://localhost:5000/api/users?sorted_by=nickname").json())

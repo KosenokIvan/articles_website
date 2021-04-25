@@ -11,7 +11,7 @@ h1.main-header {
     white-space: pre-wrap;
 }
 
-.article-card, .comment-card {
+.article-card, .comment-card, .user-card {
     margin-top: 5px;
     margin-bottom: 5px;
 }

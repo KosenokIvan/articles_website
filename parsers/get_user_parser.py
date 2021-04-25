@@ -6,7 +6,10 @@ parser.add_argument("get_field", action="append",
                              "description", "avatar", "modified_date"],
                     default=["id", "nickname"])
 
-range_parser = parser.copy()
+sorted_by_parser = parser.copy()
+sorted_by_parser.add_argument("sorted_by", choices=["id", "nickname"], default="id")
+
+range_parser = sorted_by_parser.copy()
 range_parser.add_argument("limit", type=int)
 range_parser.add_argument("offset", type=int)
 

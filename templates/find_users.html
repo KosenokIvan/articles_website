@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "macro.html" import user_card %}
+
+{% block content %}
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <div class="col-auto mb-3">
+            {{ form.nickname_search_string.label }}
+            {{ form.nickname_search_string(class="form-control", type="text", maxlength="32") }}
+            {% for error in form.nickname_search_string.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-auto">{{ form.submit(type="submit", class="btn btn-primary") }}</div>
+        <div class="alert {{ message_class }}" role="alert">{{ message }}</div>
+    </form>
+    <div class="col-auto">
+        <hr>
+        {% for user in users_list %}
+            {{ user_card(user) }}
+        {% else %}
+            <p>&lt;Пользователи не найдены&gt;</p>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -159,7 +159,7 @@ class UsersListResource(Resource):
         users = UserModelWorker.get_all_users(fields,
                                               args["limit"], args["offset"],
                                               args["nickname_search_string"],
-                                              args["nickname_filter"])
+                                              args["nickname_filter"], args["sorted_by"])
         if "avatar" in fields:
             for user in users:
                 if user["avatar"] is not None:

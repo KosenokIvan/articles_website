@@ -52,7 +52,8 @@ class UserModelWorker:
 
     @staticmethod
     def get_all_users(fields=("id", "nickname"), limit=None, offset=None,
-                      nickname_search_string=None, nickname_filter="equals"):
+                      nickname_search_string=None, nickname_filter="equals",
+                      sorted_by="nickname"):
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
@@ -70,6 +71,8 @@ class UserModelWorker:
                 users = users.filter(User.nickname.like(f"%{nickname_search_string}%"))
             else:
                 raise UnknownFilterError(f"Unknown filter: {nickname_filter}")
+        if sorted_by == "nickname":
+            users = users.order_by(User.nickname)
         if offset is not None:
             users = users.offset(offset)
         if limit is not None:

@@ -6,7 +6,11 @@
         {{ form.hidden_tag() }}
         <div class="col-auto mb-3">
             {{ form.nickname_search_string.label }}
-            {{ form.nickname_search_string(class="form-control", type="text", maxlength="32") }}
+            {{ form.nickname_search_string(class="form-control", type="text",
+                                           maxlength="32", aria_describedby="searchHelp") }}
+            <div class="form-text text-muted" id="searchHelp">
+                Поиск осущесвляется при длине поисковой строки &ge; 3
+            </div>
             {% for error in form.nickname_search_string.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}

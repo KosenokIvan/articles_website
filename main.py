@@ -55,6 +55,7 @@ def register():
     template_name = "register.html"
     title = "Регистрация"
     form = RegisterForm()
+    sorted_by = session.get("sorted_by", "create_date")
     if form.validate_on_submit():
         try:
             UserModelWorker.new_user({
@@ -72,58 +73,67 @@ def register():
                                    title=title,
                                    form=form,
                                    message="Пароли не совпадают",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except EmailAlreadyUseError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Почта уже используется",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except UserAlreadyExistError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Такой пользователь уже есть",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectNicknameLengthError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Длина никнейма должна быть от 3 до 32 символов",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except NicknameContainsInvalidCharactersError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Никнейм может содержать только буквы латинского "
                                            "алфавита, арабские цифры и знаки подчёркивания",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectPasswordLengthError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Длина пароля должна быть от 8 до 512 символов",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except NotSecurePasswordError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Пароль должен содержать минимум 1 непробельный символ",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectImageError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Не удалось обработать изображение",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectEmailFormatError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Некорректный формат email",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         return redirect("/login")
-    return render_template(template_name, title=title, form=form)
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -131,6 +141,7 @@ def login():
     template_name = "login.html"
     title = "Авторизация"
     form = LoginForm()
+    sorted_by = session.get("sorted_by", "create_date")
     if form.validate_on_submit():
         try:
             UserModelWorker.login({
@@ -142,15 +153,17 @@ def login():
             return render_template(template_name,
                                    form=form,
                                    message="Неправильная почта или пароль",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectPasswordError:
             return render_template(template_name,
                                    form=form,
                                    message="Неправильная почта или пароль",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         else:
-            return redirect(f"/?sorted_by={session.get('sorted_by', 'create_date')}")
-    return render_template(template_name, title=title, form=form)
+            return redirect(f"/?sorted_by={sorted_by}")
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/edit_user", methods=["GET", "POST"])
@@ -161,6 +174,7 @@ def edit_user():
     form = EditUserForm()
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(current_user.id)
+    sorted_by = session.get("sorted_by", "create_date")
     if request.method == "GET":
         form.name.data = user.name
         form.surname.data = user.surname
@@ -185,64 +199,74 @@ def edit_user():
                                    title=title,
                                    form=form,
                                    message="Неверный пароль",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except UserAlreadyExistError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Такой пользователь уже есть",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except EmailAlreadyUseError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Почта уже используется",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except PasswordMismatchError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Пароли не совпадают",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectNicknameLengthError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Длина никнейма должна быть от 3 до 32 символов",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except NicknameContainsInvalidCharactersError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Никнейм может содержать только буквы латинского "
                                            "алфавита, арабские цифры и знаки подчёркивания",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectPasswordLengthError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Длина пароля должна быть от 8 до 512 символов",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except NotSecurePasswordError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Пароль должен содержать минимум 1 непробельный символ",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectImageError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Не удалось обработать изображение",
-                                   message_class="alert-danger")
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
         except IncorrectEmailFormatError:
             return render_template(template_name,
                                    title=title,
                                    form=form,
                                    message="Некорректный формат email",
-                                   message_class="alert-danger")
-        return redirect(f"/user_page/{user.id}?sorted_by={session.get('sorted_by', 'create_date')}")
-    return render_template(template_name, title=title, form=form)
+                                   message_class="alert-danger",
+                                   sorted_by=sorted_by)
+        return redirect(f"/user_page/{user.id}?sorted_by={sorted_by}")
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/delete_user", methods=["GET", "POST"])
@@ -251,19 +275,23 @@ def delete_user():
     template_name = "delete_user.html"
     title = "Удалить аккаунт"
     form = DeleteUserForm()
+    sorted_by = session.get("sorted_by", "create_date")
     if form.validate_on_submit():
         try:
             UserModelWorker.delete_user(current_user.id, form.password.data)
         except UserNotFoundError:
             abort(404)
         except IncorrectPasswordError:
-            return render_template(template_name, title=title,
-                                   form=form, sorted_by=session.get("sorted_by", "create_date"),
-                                   message="Неверный пароль", message_class="alert-danger")
+            return render_template(template_name,
+                                   title=title,
+                                   form=form,
+                                   sorted_by=sorted_by,
+                                   message="Неверный пароль",
+                                   message_class="alert-danger")
         else:
-            return redirect(f"/page1?sorted_by={session.get('sorted_by', 'create_date')}")
+            return redirect(f"/page1?sorted_by={sorted_by}")
     return render_template(template_name, title=title,
-                           form=form, sorted_by=session.get("sorted_by", "create_date"))
+                           form=form, sorted_by=sorted_by)
 
 
 @app.route("/user_page/<int:user_id>")
@@ -301,6 +329,7 @@ def add_article():
     template_name = "add_article.html"
     title = "Добавить статью"
     form = ArticleForm()
+    sorted_by = session.get("sorted_by", "create_date")
     if form.validate_on_submit():
         ArticleModelWorker.new_article({
             "title": form.title.data,
@@ -309,8 +338,8 @@ def add_article():
             "image": form.image.data
         })
         return redirect(f"/user_page/{current_user.id}?sorted_by="
-                        f"{session.get('sorted_by', 'create_date')}")
-    return render_template(template_name, title=title, form=form)
+                        f"{sorted_by}")
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/edit_article/<int:article_id>", methods=["GET", "POST"])
@@ -340,7 +369,8 @@ def edit_article(article_id):
         except ForbiddenToUserError:
             abort(403)
         return redirect(f"/article/{article['id']}")
-    return render_template(template_name, title=title, form=form)
+    sorted_by = session.get("sorted_by", "create_date")
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/delete_article/<int:article_id>", methods=["GET", "POST"])
@@ -352,7 +382,8 @@ def delete_article(article_id):
         abort(404)
     except ForbiddenToUserError:
         abort(403)
-    return redirect(f"/?sorted_by={session.get('sorted_by', 'create_date')}")
+    sorted_by = session.get("sorted_by", "create_date")
+    return redirect(f"/?sorted_by={sorted_by}")
 
 
 @app.route("/article/<int:article_id>")
@@ -361,7 +392,9 @@ def article_page(article_id):
     article = db_sess.query(Article).get(article_id)
     if not article:
         abort(404)
-    return render_template("article_page.html", title=article.title, article=article)
+    sorted_by = session.get("sorted_by", "create_date")
+    return render_template("article_page.html", title=article.title, article=article,
+                           sorted_by=sorted_by)
 
 
 @app.route("/add_comment/<int:article_id>", methods=["GET", "POST"])
@@ -381,7 +414,8 @@ def add_comment(article_id):
         except ArticleNotFoundError:
             abort(404)
         return redirect(f"/article/{article_id}")
-    return render_template(template_name, title=title, form=form)
+    sorted_by = session.get("sorted_by", "create_date")
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/edit_comment/<int:comment_id>", methods=["GET", "POST"])
@@ -392,6 +426,7 @@ def edit_comment(comment_id):
     form = CommentForm()
     db_sess = db_session.create_session()
     comment = db_sess.query(Comment).get(comment_id)
+    sorted_by = session.get("sorted_by", "create_date")
     if not comment:
         abort(404)
     if comment.user != current_user:
@@ -409,7 +444,7 @@ def edit_comment(comment_id):
         except ForbiddenToUserError:
             abort(403)
         return redirect(f"/article/{comment.article_id}#commentCard{comment_id}")
-    return render_template(template_name, title=title, form=form)
+    return render_template(template_name, title=title, form=form, sorted_by=sorted_by)
 
 
 @app.route("/delete_comment/<int:comment_id>")
@@ -468,8 +503,9 @@ def find_users():
                 users.pop(-1)
                 users.insert(0, equal_nickname[0])
         users_list = [db_sess.query(User).get(user["id"]) for user in users]
+    sorted_by = session.get("sorted_by", "create_date")
     return render_template("find_users.html", title="Найти пользоваеля",
-                           form=form, users_list=users_list)
+                           form=form, users_list=users_list, sorted_by=sorted_by)
 
 
 @app.route("/")
@@ -497,24 +533,31 @@ def index(page_index=1):
 
 @app.errorhandler(401)
 def unauthorized(error):
+    sorted_by = session.get("sorted_by", "create_date")
     return make_response(
-        render_template("unauthorized.html", title="Недоступно неавторизованным пользователям"),
+        render_template("unauthorized.html",
+                        title="Недоступно неавторизованным пользователям",
+                        sorted_by=sorted_by),
         401
     )
 
 
 @app.errorhandler(403)
 def forbidden(error):
+    sorted_by = session.get("sorted_by", "create_date")
     return make_response(
-        render_template("forbidden.html", title="Запрещенно"),
+        render_template("forbidden.html", title="Запрещенно", sorted_by=sorted_by),
         403
     )
 
 
 @app.errorhandler(404)
 def page_not_found(error):
+    sorted_by = session.get("sorted_by", "create_date")
     return make_response(
-        render_template("page_not_found.html", title="Страница не найдена"),
+        render_template("page_not_found.html",
+                        title="Страница не найдена",
+                        sorted_by=sorted_by),
         404
     )
 

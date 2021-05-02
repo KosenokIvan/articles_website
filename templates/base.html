@@ -27,10 +27,10 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropButton1">
                         <li>
-                            <a href="/" class="dropdown-item">На главную</a>
+                            <a href="/?sorted_by={{ sorted_by }}" class="dropdown-item">На главную</a>
                         </li>
                         <li>
-                            <a href="/user_page/{{ current_user.id }}" class="dropdown-item">Аккаунт</a>
+                            <a href="/user_page/{{ current_user.id }}?sorted_by={{ sorted_by }}" class="dropdown-item">Аккаунт</a>
                         </li>
                         <li>
                             <a href="/logout" class="dropdown-item">Выйти из аккаунта</a>
@@ -41,7 +41,7 @@
                 <div class="header-link-container">
                     <a href="/register" class="btn btn-primary">Зарегистрироваться</a>
                     <a href="/login" class="btn btn-outline-success">Войти</a>
-                    <a href="/" class="btn btn-outline-secondary">На главную</a>
+                    <a href="/?sorted_by={{ sorted_by }}" class="btn btn-outline-secondary">На главную</a>
                 </div>
             {% endif %}
         </div>

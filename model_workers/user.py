@@ -201,3 +201,21 @@ class UserModelWorker:
             raise ForbiddenToUserError
         user.is_moderator = False
         db_sess.commit()
+
+    @staticmethod
+    def make_admin(user_id):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        if not user:
+            raise UserNotFoundError
+        user.is_admin = True
+        db_sess.commit()
+
+    @staticmethod
+    def make_non_admin(user_id):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        if not user:
+            raise UserNotFoundError
+        user.is_admin = False
+        db_sess.commit()

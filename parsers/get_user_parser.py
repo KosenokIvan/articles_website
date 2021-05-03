@@ -3,7 +3,8 @@ from flask_restful import reqparse
 parser = reqparse.RequestParser()
 parser.add_argument("get_field", action="append",
                     choices=["id", "name", "surname", "nickname", "email",
-                             "description", "avatar", "modified_date"],
+                             "description", "avatar", "modified_date",
+                             "is_moderator", "is_admin"],
                     default=["id", "nickname"])
 
 sorted_by_parser = parser.copy()

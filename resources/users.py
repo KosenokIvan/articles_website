@@ -43,9 +43,11 @@ class UserResource(Resource):
         args = get_user_parser.parser.parse_args()
         if current_user.is_authenticated and current_user.id == user_id:
             fields = ("id", "name", "surname", "nickname", "email",
-                      "description", "avatar", "modified_date")
+                      "description", "avatar", "modified_date",
+                      "is_moderator", "is_admin")
         else:
-            fields = ("id", "nickname", "description", "avatar")
+            fields = ("id", "nickname", "description", "avatar",
+                      "is_moderator", "is_admin")
         fields = tuple(field for field in fields if field in args["get_field"])
         try:
             user = UserModelWorker.get_user(user_id, fields)
@@ -154,7 +156,8 @@ class UsersListResource(Resource):
 
     def get(self):
         args = get_user_parser.find_parser.parse_args()
-        fields = tuple(field for field in ("id", "nickname", "description", "avatar")
+        fields = tuple(field for field in ("id", "nickname", "description",
+                                           "avatar", "is_moderator", "is_admin")
                        if field in args["get_field"])
         users = UserModelWorker.get_all_users(fields,
                                               args["limit"], args["offset"],

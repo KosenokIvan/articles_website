@@ -129,7 +129,8 @@ class TestApiApp(HttpWorker):
                 print("\tLogout: logout")
                 print("\tDelete account: delete <user_id> <password>")
             print("\tGet user: get_user <user_id> [*get_fields choices=['id', 'name', 'surname',"
-                  " 'nickname', 'email', 'description', 'avatar', 'modified_date']"
+                  " 'nickname', 'email', 'description', 'avatar', 'modified_date', "
+                  "'is_moderator', 'is_admin']"
                   " default=['id', 'nickname']]")
             print("\tClose program: exit")
             command, *args = input("~ ").split()

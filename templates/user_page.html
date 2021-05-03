@@ -12,6 +12,12 @@
         <a href="/article" class="btn btn-primary">Добавить статью</a>
         <a href="/edit_user" class="btn btn-outline-dark">Редактировать аккаунт</a>
         <a href="/delete_user" class="btn btn-outline-danger">Удалить аккаунт</a>
+    {% elif current_user.is_authenticated and current_user.is_admin and not user.is_admin %}
+        {% if user.is_moderator %}
+            <a href="/make_simple_user/{{ user.id }}" class="btn btn-outline-warning">Понизить до обычного пользователя</a>
+        {% else %}
+            <a href="/make_moderator/{{ user.id }}" class="btn btn-outline-danger">Сделать модератором</a>
+        {% endif %}
     {% endif %}
     <hr>
     {% set page_links_count = 9 %} {# Обязательно нечётное число!!! #}

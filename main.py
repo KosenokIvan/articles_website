@@ -294,6 +294,30 @@ def delete_user():
                            form=form, sorted_by=sorted_by)
 
 
+@app.route("/make_simple_user/<int:user_id>")
+@login_required
+def make_simple_user(user_id):
+    try:
+        UserModelWorker.make_simple_user(user_id, current_user.id)
+    except UserNotFoundError:
+        abort(404)
+    except ForbiddenToUserError:
+        abort(403)
+    return redirect(f"/user_page/{user_id}")
+
+
+@app.route("/make_moderator/<int:user_id>")
+@login_required
+def make_moderator(user_id):
+    try:
+        UserModelWorker.make_moderator(user_id, current_user.id)
+    except UserNotFoundError:
+        abort(404)
+    except ForbiddenToUserError:
+        abort(403)
+    return redirect(f"/user_page/{user_id}")
+
+
 @app.route("/user_page/<int:user_id>")
 @app.route("/user_page/<int:user_id>/page<int:page_index>")
 def user_page(user_id, page_index=1):

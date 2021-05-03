@@ -11,7 +11,8 @@ from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     UserAlreadyExistError, IncorrectPasswordError, UserNotFoundError, \
     UnknownFilterError, IncorrectNicknameLengthError, NicknameContainsInvalidCharactersError, \
-    IncorrectPasswordLengthError, NotSecurePasswordError, IncorrectEmailFormatError
+    IncorrectPasswordLengthError, NotSecurePasswordError, IncorrectEmailFormatError, \
+    ForbiddenToUserError
 from tools.get_image_path import get_image_path
 from tools.constants import USERS_AVATARS_DIR
 from model_workers.article_like import ArticleLikeModelWorker
@@ -175,4 +176,28 @@ class UserModelWorker:
                 "article_id": like.article_id
             })
         db_sess.delete(user)
+        db_sess.commit()
+
+    @staticmethod
+    def make_moderator(user_id, admin_id):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        admin = db_sess.query(User).get(admin_id)
+        if not user or not admin:
+            raise UserNotFoundError
+        if user.is_admin or not admin.is_admin:
+            raise ForbiddenToUserError
+        user.is_moderator = True
+        db_sess.commit()
+
+    @staticmethod
+    def make_simple_user(user_id, admin_id):
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).get(user_id)
+        admin = db_sess.query(User).get(admin_id)
+        if not user or not admin:
+            raise UserNotFoundError
+        if user.is_admin or not admin.is_admin:
+            raise ForbiddenToUserError
+        user.is_moderator = False
         db_sess.commit()

@@ -23,7 +23,6 @@ def check_nickname(nickname):
         raise IncorrectNicknameLengthError
     valid_characters = ascii_letters + digits + "_"
     if any(map(lambda x: x not in valid_characters, nickname)):
-        print(nickname)
         raise NicknameContainsInvalidCharactersError
 
 

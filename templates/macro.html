@@ -101,9 +101,11 @@
                 <img src="{{ avatar_filename(comment.user) }}" alt="" width="48" height="48">
                 <a href="/user_page/{{ comment.author }}">@{{ comment.user.nickname }}</a>
                 {{ user_role_image(comment.user) }}
-                {% if current_user == comment.user %}
+                {% if current_user.is_authenticated and comment.user_can_delete(current_user) %}
                     <span style="float: right">
-                        {{ edit_btn("/edit_comment/" + comment.id|string) }}
+                        {% if comment.user == current_user %}
+                            {{ edit_btn("/edit_comment/" + comment.id|string) }}
+                        {% endif %}
                         {{ delete_btn("/delete_comment/" + comment.id|string, "commentModal" + comment.id|string) }}
                     </span>
                 {% endif %}

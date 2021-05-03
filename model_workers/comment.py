@@ -5,8 +5,10 @@ from io import BytesIO
 from PIL import Image
 from data.comments import Comment
 from data.articles import Article
+from data.users import User
 from data import db_session
-from tools.errors import CommentNotFoundError, ArticleNotFoundError, ForbiddenToUserError
+from tools.errors import CommentNotFoundError, ArticleNotFoundError, \
+    ForbiddenToUserError, UserNotFoundError
 from tools.get_image_path import get_image_path
 from tools.constants import COMMENTS_IMAGES_DIR
 
@@ -80,9 +82,12 @@ class CommentModelWorker:
     def delete_comment(comment_id, user_id):
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
+        user = db_sess.query(User).get(user_id)
         if not comment:
             raise CommentNotFoundError
-        if comment.author != user_id:
+        if not user:
+            raise UserNotFoundError
+        if not comment.user_can_delete(user):
             raise ForbiddenToUserError
         if comment.image:
             os.remove(f"{COMMENTS_IMAGES_DIR}/{comment.image}")

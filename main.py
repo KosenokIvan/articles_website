@@ -474,15 +474,17 @@ def edit_comment(comment_id):
 @app.route("/delete_comment/<int:comment_id>")
 @login_required
 def delete_comment(comment_id):
-    db_sess = db_session.create_session()
-    comment = db_sess.query(Comment).get(comment_id)
-    if not comment:
+    try:
+        article_id = CommentModelWorker.get_comment(comment_id, ("article_id",))["article_id"]
+        CommentModelWorker.delete_comment(comment_id, current_user.id)
+    except CommentNotFoundError:
         abort(404)
-    if comment.user != current_user:
+    except UserNotFoundError:
+        abort(404)
+    except ForbiddenToUserError:
         abort(403)
-    article_id = comment.article_id
-    CommentModelWorker.delete_comment(comment_id, current_user.id)
-    return redirect(f"/article/{article_id}")
+    else:
+        return redirect(f"/article/{article_id}")
 
 
 @app.route("/like/<int:article_id>")

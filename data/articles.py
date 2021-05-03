@@ -19,3 +19,12 @@ class Article(SqlAlchemyBase, SerializerMixin):
     user = orm.relation("User")
     comments = orm.relation("Comment", back_populates="article", cascade="all,delete-orphan")
     likes = orm.relation("ArticleLike", back_populates="article", cascade="all,delete-orphan")
+
+    def user_can_delete(self, user):
+        if self.user == user:
+            return True
+        if self.user.is_admin:
+            return False
+        if self.user.is_moderator:
+            return user.is_admin
+        return user.is_admin or user.is_moderator

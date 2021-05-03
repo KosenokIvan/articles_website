@@ -19,6 +19,9 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
     avatar = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String(4096), nullable=True)
+    is_moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)  # Администратор наделён
+    # правами модератора независимо от значения поля is_moderator
     articles = orm.relation("Article", back_populates="user", cascade="all,delete-orphan")
     comments = orm.relation("Comment", back_populates="user", cascade="all,delete-orphan")
     likes = orm.relation("ArticleLike", back_populates="user", cascade="all,delete-orphan")

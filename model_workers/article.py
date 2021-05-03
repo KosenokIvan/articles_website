@@ -4,8 +4,9 @@ import os
 from io import BytesIO
 from PIL import Image
 from data.articles import Article
+from data.users import User
 from data import db_session
-from tools.errors import ArticleNotFoundError, ForbiddenToUserError
+from tools.errors import ArticleNotFoundError, ForbiddenToUserError, UserNotFoundError
 from tools.get_image_path import get_image_path
 from tools.constants import ARTICLES_IMAGES_DIR
 from model_workers.comment import CommentModelWorker
@@ -86,7 +87,10 @@ class ArticleModelWorker:
         article = db_sess.query(Article).get(article_id)
         if not article:
             raise ArticleNotFoundError
-        if article.author != user_id:
+        user = db_sess.query(User).get(user_id)
+        if not user:
+            raise UserNotFoundError
+        if not article.user_can_delete(user):
             raise ForbiddenToUserError
         if article.image:
             os.remove(f"{ARTICLES_IMAGES_DIR}/{article.image}")

@@ -7,9 +7,11 @@
             <img src="{{ avatar_filename(article.user) }}" alt="" width="48" height="48">
             <a href="/user_page/{{ article.author }}">@{{ article.user.nickname }}</a>
             {{ article.title }}
-            {% if current_user == article.user %}
+            {% if current_user.is_authenticated and current_user.is_authenticated and article.user_can_delete(current_user) %}
                 <span style="float: right">
-                    {{ edit_btn("/edit_article/" + article.id|string) }}
+                    {% if current_user == article.user %}
+                        {{ edit_btn("/edit_article/" + article.id|string) }}
+                    {% endif %}
                     {{ delete_btn("/delete_article/" + article.id|string, "deleteModal") }}
                 </span>
             {% endif %}

@@ -1,4 +1,4 @@
-{% from "macro.html" import avatar_filename %}
+{% from "macro.html" import avatar_filename, user_role_image %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +23,7 @@
                     <button class="dropdown-toggle" type="button" id="dropButton1"
                             data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{{ avatar_filename(current_user) }}" alt="" width="48" height="48">
-                        @{{ current_user.nickname }}
+                        @{{ current_user.nickname }}{{ user_role_image(current_user) }}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropButton1">
                         <li>

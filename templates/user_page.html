@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% from "macro.html" import article_card, avatar_filename, pagination_widget, sorted_by_widget %}
+{% from "macro.html" import article_card, avatar_filename, pagination_widget, sorted_by_widget, user_role_image %}
 
 {% block content %}
 <div class="col-auto">
     <h3>
         <img src="{{ avatar_filename(user) }}" alt="" width="48" height="48"> @{{ user.nickname }}
+        {{ user_role_image(user) }}
     </h3>
     <p class="preserve-line-breaks">{% if user.description %}{{ user.description }}{% else %}&lt;Описание отсутствует&gt;{% endif %}</p>
     {% if current_user == user %}

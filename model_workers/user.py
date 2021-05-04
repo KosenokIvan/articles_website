@@ -14,7 +14,7 @@ from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
     IncorrectPasswordLengthError, NotSecurePasswordError, IncorrectEmailFormatError, \
     ForbiddenToUserError
 from tools.get_image_path import get_image_path
-from tools.constants import USERS_AVATARS_DIR
+from tools.constants import USERS_AVATARS_DIR, AVATAR_SIZE
 from model_workers.article_like import ArticleLikeModelWorker
 
 
@@ -107,7 +107,7 @@ class UserModelWorker:
                     email=user_data["email"])
         user.set_password(user_data["password"])
         if user_data.get("avatar"):
-            image = Image.open(BytesIO(user_data["avatar"].read()))
+            image = Image.open(BytesIO(user_data["avatar"].read())).resize(AVATAR_SIZE)
             filename = get_image_path(USERS_AVATARS_DIR)
             image.save(f"{USERS_AVATARS_DIR}/{filename}")
             user.avatar = filename
@@ -151,7 +151,7 @@ class UserModelWorker:
             user.description = user_data.get("description", user.description)
         user.modified_date = datetime.now()
         if user_data.get("avatar"):
-            image = Image.open(BytesIO(user_data["avatar"].read()))
+            image = Image.open(BytesIO(user_data["avatar"].read())).resize(AVATAR_SIZE)
             filename = get_image_path(USERS_AVATARS_DIR)
             if user.avatar:
                 os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")

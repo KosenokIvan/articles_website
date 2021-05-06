@@ -6,27 +6,27 @@ from tools.errors import UserNotFoundError
 
 main_parser = argparse.ArgumentParser()
 main_parser.add_argument("command", choices=[
-    "make_admin",
-    "make_non_admin"
+    "give_admin_rights",
+    "revoke_admin_rights"
 ])
 main_args = main_parser.parse_args(sys.argv[1:2])
 db_session.global_init("db/articles.db")
-if main_args.command == "make_admin":
+if main_args.command == "give_admin_rights":
     parser = argparse.ArgumentParser()
     parser.add_argument("--id", dest="user_id", type=int, required=True)
     args = parser.parse_args(sys.argv[2:])
     try:
-        UserModelWorker.make_admin(args.user_id)
+        UserModelWorker.give_admin_rights(args.user_id)
     except UserNotFoundError:
         print(f"User {args.user_id} not found")
     else:
         print("Success")
-elif main_args.command == "make_non_admin":
+elif main_args.command == "revoke_admin_rights":
     parser = argparse.ArgumentParser()
     parser.add_argument("--id", dest="user_id", type=int, required=True)
     args = parser.parse_args(sys.argv[2:])
     try:
-        UserModelWorker.make_non_admin(args.user_id)
+        UserModelWorker.revoke_admin_rights(args.user_id)
     except UserNotFoundError:
         print(f"User {args.user_id} not found")
     else:

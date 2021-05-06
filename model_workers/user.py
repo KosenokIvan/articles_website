@@ -202,7 +202,7 @@ class UserModelWorker:
         db_sess.commit()
 
     @staticmethod
-    def make_admin(user_id):
+    def give_admin_rights(user_id):
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:
@@ -211,7 +211,7 @@ class UserModelWorker:
         db_sess.commit()
 
     @staticmethod
-    def make_non_admin(user_id):
+    def revoke_admin_rights(user_id):
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:

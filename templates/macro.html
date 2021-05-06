@@ -90,6 +90,7 @@
                         "/like/" + article.id|string,
                         url,
                         not current_user.is_authenticated) }}
+            <span style="margin-left: 10px;">Комментариев: {{ article.comments|length }}</span>
         </div>
     </div>
 {% endmacro %}

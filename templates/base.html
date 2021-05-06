@@ -41,7 +41,19 @@
                 <div class="header-link-container">
                     <a href="/register" class="btn btn-primary">Зарегистрироваться</a>
                     <a href="/login" class="btn btn-outline-success">Войти</a>
-                    <a href="/?sorted_by={{ sorted_by }}" class="btn btn-outline-secondary">На главную</a>
+                    <div class="dropdown" style="display: inline-block;">
+                        <button class="dropdown-toggle btn btn-outline-secondary" type="button" id="dropButton2"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropButton2">
+                            <li>
+                                <a href="/?sorted_by={{ sorted_by }}" class="dropdown-item">На главную</a>
+                            </li>
+                            <li>
+                                <a href="/find_users" class="dropdown-item">Поиск пользователей</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             {% endif %}
         </div>

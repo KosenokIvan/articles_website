@@ -144,7 +144,7 @@
 {% endmacro %}
 
 {% macro pagination_widget(page_index, max_page_index, page_links_count, link_format) %}
-    <ul class="pagination">
+    <ul class="pagination" style="margin-top: 5px; margin-bottom: 5px;">
         {% if max_page_index <= page_links_count %}
             {% set min_link_index = 1 %}
             {% set max_link_index = max_page_index %}

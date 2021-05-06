@@ -23,7 +23,7 @@
     <div class="col-auto">
         <hr>
         {% for user in users_list %}
-            {{ user_card(user) }}
+            {{ user_card(user, sorted_by) }}
         {% else %}
             <p>&lt;Пользователи не найдены&gt;</p>
         {% endfor %}

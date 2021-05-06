@@ -27,7 +27,7 @@
     {{ sorted_by_widget("/user_page/" + user.id|string + "/page" + page_index|string) }}
     {% for article in articles_list %}
     {{ article_card(article, current_user, "/user_page/" + user.id|string + "?sorted_by="
-                    + sorted_by + "#articleCard" + article.id|string) }}
+                    + sorted_by + "#articleCard" + article.id|string, sorted_by) }}
     {% else %}
     <p class="col-auto">
         Этот пользователь не опубликовал ни одной статьи

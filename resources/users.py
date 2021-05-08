@@ -52,7 +52,7 @@ class UserResource(Resource):
         try:
             user = UserModelWorker.get_user(user_id, fields)
         except UserNotFoundError:
-            fr_abort(404, message=f"User {user_id} not found")
+            fr_abort(404, message="User not found")
         else:
             if "avatar" in fields:
                 if user["avatar"] is not None:
@@ -65,7 +65,7 @@ class UserResource(Resource):
         args = put_user_parser.parser.parse_args()
         check_authorization()
         if current_user.id != user_id:
-            fr_abort(403, message=f"User {current_user.id} can't edit page of the user {user_id}")
+            fr_abort(403, message=f"Forbidden")
         user_data = {
                 "name": args["name"],
                 "surname": args["surname"],
@@ -85,9 +85,9 @@ class UserResource(Resource):
         except PasswordMismatchError:
             fr_abort(400, message="Password mismatch")
         except UserAlreadyExistError:
-            fr_abort(400, message=f"User @{args['nickname']} already exist")
+            fr_abort(400, message=f"User already exist")
         except EmailAlreadyUseError:
-            fr_abort(400, message=f"Email {args['email']} already use")
+            fr_abort(400, message=f"Email already use")
         except IncorrectNicknameLengthError:
             fr_abort(400, message="Length of the nickname must be between 3 and 32")
         except NicknameContainsInvalidCharactersError:
@@ -107,11 +107,11 @@ class UserResource(Resource):
         args = delete_user_parser.parser.parse_args()
         check_authorization()
         if current_user.id != user_id:
-            fr_abort(403, message=f"User {current_user.id} can't edit page of the user {user_id}")
+            fr_abort(403, message=f"Forbidden")
         try:
             UserModelWorker.delete_user(user_id, args["password"])
         except UserNotFoundError:
-            fr_abort(404, message=f"User {user_id} not found")
+            fr_abort(404, message=f"User not found")
         except IncorrectPasswordError:
             fr_abort(400, message="Incorrect password")
         return jsonify({"success": "ok"})
@@ -136,9 +136,9 @@ class UsersListResource(Resource):
         except PasswordMismatchError:
             fr_abort(400, message="Password mismatch")
         except UserAlreadyExistError:
-            fr_abort(400, message=f"User @{args['nickname']} already exist")
+            fr_abort(400, message="User already exist")
         except EmailAlreadyUseError:
-            fr_abort(400, message=f"Email {args['email']} already use")
+            fr_abort(400, message="Email already use")
         except IncorrectNicknameLengthError:
             fr_abort(400, message="Length of the nickname must be between 3 and 32")
         except NicknameContainsInvalidCharactersError:

@@ -18,7 +18,7 @@ class ArticleResource(Resource):
         try:
             article = ArticleModelWorker.get_article(article_id, args["get_field"])
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {article_id} not found")
+            fr_abort(404, message=f"Article not found")
         else:
             if "image" in article:
                 if article["image"] is not None:
@@ -40,9 +40,9 @@ class ArticleResource(Resource):
                 article_data["image"] = hex_image_to_file_storage(args["image"])
             ArticleModelWorker.edit_article(article_id, current_user.id, article_data)
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {article_id} not found")
+            fr_abort(404, message=f"Article not found")
         except ForbiddenToUserError:
-            fr_abort(403, message=f"User {current_user.id} is not author of article {article_id}")
+            fr_abort(403, message=f"Forbidden")
         except IncorrectImageError:
             fr_abort(400, message="Incorrect image")
         else:
@@ -53,9 +53,9 @@ class ArticleResource(Resource):
         try:
             ArticleModelWorker.delete_article(article_id, current_user.id)
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {article_id} not found")
+            fr_abort(404, message=f"Article not found")
         except ForbiddenToUserError:
-            fr_abort(403, message=f"User {current_user.id} is not author of article {article_id}")
+            fr_abort(403, message=f"Forbidden")
         else:
             return jsonify({"success": "ok"})
 

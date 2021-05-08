@@ -17,7 +17,7 @@ class CommentResource(Resource):
         try:
             comment = CommentModelWorker.get_comment(comment_id, args["get_field"])
         except CommentNotFoundError:
-            fr_abort(404, message=f"Comment {comment_id} not found")
+            fr_abort(404, message="Comment not found")
         else:
             if "image" in comment:
                 if comment["image"] is not None:
@@ -35,9 +35,9 @@ class CommentResource(Resource):
                 comment_data["image"] = hex_image_to_file_storage(args["image"])
             CommentModelWorker.edit_comment(comment_id, current_user.id, comment_data)
         except CommentNotFoundError:
-            fr_abort(404, message=f"Comment {comment_id} not found")
+            fr_abort(404, message="Comment not found")
         except ForbiddenToUserError:
-            fr_abort(403, message=f"User {current_user.id} is not author of comment {comment_id}")
+            fr_abort(403, message="Forbidden")
         except IncorrectImageError:
             fr_abort(400, message="Incorrect image")
         else:
@@ -48,9 +48,9 @@ class CommentResource(Resource):
         try:
             CommentModelWorker.delete_comment(comment_id, current_user.id)
         except CommentNotFoundError:
-            fr_abort(404, message=f"Comment {comment_id} not found")
+            fr_abort(404, message="Comment not found")
         except ForbiddenToUserError:
-            fr_abort(403, message=f"User {current_user.id} is not author of comment {comment_id}")
+            fr_abort(403, message="Forbidden")
         else:
             return jsonify({"success": "ok"})
 
@@ -82,7 +82,7 @@ class CommentsListResource(Resource):
                 comment_data["image"] = hex_image_to_file_storage(args["image"])
             CommentModelWorker.new_comment(comment_data)
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {args['article_id']} not found")
+            fr_abort(404, message=f"Article not found")
         except IncorrectImageError:
             fr_abort(400, message="Incorrect image")
         else:

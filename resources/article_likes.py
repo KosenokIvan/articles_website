@@ -22,7 +22,7 @@ class ArticleLikeResource(Resource):
                 "user_id": current_user.id
             })
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {article_id} not found")
+            fr_abort(404, message="Article not found")
         except LikeAlreadyThereError:
             fr_abort(400, message="Like already there")
         else:
@@ -36,7 +36,7 @@ class ArticleLikeResource(Resource):
                 "user_id": current_user.id
             })
         except ArticleNotFoundError:
-            fr_abort(404, message=f"Article {article_id} not found")
+            fr_abort(404, message="Article not found")
         except LikeNotFoundError:
             fr_abort(404, message="Like not found")
         else:

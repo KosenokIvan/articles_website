@@ -47,7 +47,7 @@ class HttpWorker:
             return INCORRECT_IMAGE
         elif message == "Incorrect email format":
             return INCORRECT_EMAIL_FORMAT
-        if message.startswith("User @"):
+        if message.startswith("User"):
             return USER_ALREADY_EXIST
         if message.startswith("Email"):
             return EMAIL_ALREADY_USE

@@ -7,7 +7,9 @@ from tools.check_authorization import check_authorization
 
 
 class ArticleLikeResource(Resource):
+    """Ресурс для взаимодействия с лайками через API"""
     def get(self, article_id):
+        """Проверить, поставил ли пользователь лайк под записью"""
         check_authorization()
         return jsonify({"like_exist": ArticleLikeModelWorker.like_exist({
             "article_id": article_id,
@@ -15,6 +17,7 @@ class ArticleLikeResource(Resource):
         })})
 
     def post(self, article_id):
+        """Поставить лайк"""
         check_authorization()
         try:
             ArticleLikeModelWorker.new_like({
@@ -29,6 +32,7 @@ class ArticleLikeResource(Resource):
             return jsonify({"success": "ok"})
 
     def delete(self, article_id):
+        """Убрать лайк"""
         check_authorization()
         try:
             ArticleLikeModelWorker.delete_like({

@@ -1,3 +1,5 @@
+"""Парсер метода сортировки статей"""
+
 from flask_restful import reqparse
 
 parser = reqparse.RequestParser()

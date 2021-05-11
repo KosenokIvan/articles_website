@@ -6,8 +6,10 @@ from model_workers.article import ArticleModelWorker
 
 
 class ArticleLikeModelWorker:
+    """Класс для работы с моделью ArticleLike"""
     @staticmethod
     def like_exist(like_data):
+        """Проверка, поставил ли пользователь лайк на запись"""
         db_sess = db_session.create_session()
         if db_sess.query(ArticleLike).filter(
                 ArticleLike.user_id == like_data["user_id"],
@@ -18,6 +20,7 @@ class ArticleLikeModelWorker:
 
     @staticmethod
     def new_like(like_data):
+        """Пользователь ставит лайк"""
         db_sess = db_session.create_session()
         if db_sess.query(ArticleLike).filter(
                 ArticleLike.user_id == like_data["user_id"],
@@ -36,6 +39,7 @@ class ArticleLikeModelWorker:
 
     @staticmethod
     def delete_like(like_data):
+        """Пользователь убирает лайк"""
         db_sess = db_session.create_session()
         like = db_sess.query(ArticleLike).filter(
             ArticleLike.user_id == like_data["user_id"],

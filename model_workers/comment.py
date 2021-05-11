@@ -14,8 +14,10 @@ from tools.constants import COMMENTS_IMAGES_DIR
 
 
 class CommentModelWorker:
+    """Класс для работы с моделью Comment"""
     @staticmethod
     def get_comment(comment_id, fields=("id", "author", "article_id")):
+        """Комментарий в JSON формате. Применяется в основном в API"""
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
@@ -27,6 +29,7 @@ class CommentModelWorker:
     @staticmethod
     def get_all_comments(fields=("id", "author", "article_id"), author=None, article=None,
                          limit=None, offset=None):
+        """Список комментариев в JSON формате. Применяется в основном в API"""
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
@@ -43,6 +46,7 @@ class CommentModelWorker:
 
     @staticmethod
     def new_comment(comment_data):
+        """Создание нового комментария"""
         db_sess = db_session.create_session()
         if not db_sess.query(Article).get(comment_data["article_id"]):
             raise ArticleNotFoundError
@@ -61,6 +65,7 @@ class CommentModelWorker:
 
     @staticmethod
     def edit_comment(comment_id, user_id, comment_data):
+        """Изменение комментария"""
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
         if not comment:
@@ -80,6 +85,7 @@ class CommentModelWorker:
 
     @staticmethod
     def delete_comment(comment_id, user_id):
+        """Удаление комментария"""
         db_sess = db_session.create_session()
         comment = db_sess.query(Comment).get(comment_id)
         user = db_sess.query(User).get(user_id)

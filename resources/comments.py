@@ -12,7 +12,9 @@ from model_workers.comment import CommentModelWorker
 
 
 class CommentResource(Resource):
+    """Ресурс для взаимодействия с комментариями через API"""
     def get(self, comment_id):
+        """Получение комментария"""
         args = get_comment_parser.parser.parse_args()
         try:
             comment = CommentModelWorker.get_comment(comment_id, args["get_field"])
@@ -27,6 +29,7 @@ class CommentResource(Resource):
             return jsonify({"comment": comment})
 
     def put(self, comment_id):
+        """Редактирование комментария"""
         args = put_comment_parser.parser.parse_args()
         check_authorization()
         comment_data = {"text": args["text"]}
@@ -44,6 +47,7 @@ class CommentResource(Resource):
             return jsonify({"success": "ok"})
 
     def delete(self, comment_id):
+        """Удаление комментария"""
         check_authorization()
         try:
             CommentModelWorker.delete_comment(comment_id, current_user.id)
@@ -56,7 +60,9 @@ class CommentResource(Resource):
 
 
 class CommentsListResource(Resource):
+    """Ресурс для взаимодействия с комментариями через API"""
     def get(self):
+        """Получение списка комментариев"""
         args = get_comment_parser.find_parser.parse_args()
         comments = CommentModelWorker.get_all_comments(args["get_field"], args["author"],
                                                        args["article"], args["limit"],
@@ -70,6 +76,7 @@ class CommentsListResource(Resource):
         return jsonify({"comments": comments})
 
     def post(self):
+        """Добавление комментария"""
         args = add_comment_parser.parser.parse_args()
         check_authorization()
         comment_data = {

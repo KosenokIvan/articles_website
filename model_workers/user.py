@@ -19,6 +19,7 @@ from model_workers.article_like import ArticleLikeModelWorker
 
 
 def check_nickname(nickname):
+    """Проверка никнейма на соответствие требованиям"""
     if not(3 <= len(nickname) <= 32):
         raise IncorrectNicknameLengthError
     valid_characters = ascii_letters + digits + "_"
@@ -27,6 +28,7 @@ def check_nickname(nickname):
 
 
 def check_password(password):
+    """Проверка пароля на соответствие требованиям"""
     if not(8 <= len(password) <= 512):
         raise IncorrectPasswordLengthError
     if not password.strip():
@@ -34,14 +36,17 @@ def check_password(password):
 
 
 def check_email(email):
+    """Проверка электронной почты на соответствие формату"""
     template = r"\w+@\w+\.\w+"
     if fullmatch(template, email) is None:
         raise IncorrectEmailFormatError
 
 
 class UserModelWorker:
+    """Класс для работы с моделью User"""
     @staticmethod
     def get_user(user_id, fields=("id", "nickname")):
+        """Пользователь в JSON формате. Применяется в основном в API"""
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
@@ -54,6 +59,7 @@ class UserModelWorker:
     def get_all_users(fields=("id", "nickname"), limit=None, offset=None,
                       nickname_search_string=None, nickname_filter="equals",
                       sorted_by="nickname"):
+        """Список пользователей в JSON формате. Применяется в основном в API"""
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
@@ -81,6 +87,7 @@ class UserModelWorker:
 
     @staticmethod
     def login(user_data):
+        """Авторизация на сайте"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == user_data["email"]).first()
         if not user:
@@ -91,6 +98,7 @@ class UserModelWorker:
 
     @staticmethod
     def new_user(user_data):
+        """Регистрация нового пользователя"""
         if user_data["password"] != user_data["password_again"]:
             raise PasswordMismatchError
         check_password(user_data["password"])
@@ -118,9 +126,11 @@ class UserModelWorker:
 
     @staticmethod
     def edit_user(user_id, user_data):
+        """Изменение пользователя"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
-        if not user.check_password(user_data["password"]):
+        if not user.check_password(user_data["password"]):  # Проверка пароля для
+            # подтверждения изменений
             raise IncorrectPasswordError
         if db_sess.query(User).filter(
                 User.email == user_data["email"], User.id != user_id
@@ -161,11 +171,12 @@ class UserModelWorker:
 
     @staticmethod
     def delete_user(user_id, user_password):
+        """Удаление аккаунта пользователя"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:
             raise UserNotFoundError
-        if not user.check_password(user_password):
+        if not user.check_password(user_password):  # Проверка пароля для подтверждения удаления
             raise IncorrectPasswordError
         if user.avatar is not None:
             os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
@@ -179,30 +190,33 @@ class UserModelWorker:
 
     @staticmethod
     def make_moderator(user_id, admin_id):
+        """Назначение пользователя модератором"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         admin = db_sess.query(User).get(admin_id)
         if not user or not admin:
             raise UserNotFoundError
-        if user.is_admin or not admin.is_admin:
+        if user.is_admin or not admin.is_admin:  # Проверка на обладание полномочиями для повышения
             raise ForbiddenToUserError
         user.is_moderator = True
         db_sess.commit()
 
     @staticmethod
     def make_simple_user(user_id, admin_id):
+        """Лишение модераторских прав"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         admin = db_sess.query(User).get(admin_id)
         if not user or not admin:
             raise UserNotFoundError
-        if user.is_admin or not admin.is_admin:
+        if user.is_admin or not admin.is_admin:  # Проверка на обладание полномочиями для понижения
             raise ForbiddenToUserError
         user.is_moderator = False
         db_sess.commit()
 
     @staticmethod
     def give_admin_rights(user_id):
+        """Назначение пользователя администратором"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:
@@ -212,6 +226,7 @@ class UserModelWorker:
 
     @staticmethod
     def revoke_admin_rights(user_id):
+        """Лишение администраторских прав"""
         db_sess = db_session.create_session()
         user = db_sess.query(User).get(user_id)
         if not user:

@@ -15,7 +15,9 @@ from tools.check_authorization import check_authorization
 
 
 class LoginResource(Resource):
+    """Ресурс для авторизации через API"""
     def post(self):
+        """Авторизация"""
         args = login_parser.parser.parse_args()
         try:
             UserModelWorker.login({
@@ -32,20 +34,24 @@ class LoginResource(Resource):
 
 
 class LogoutResource(Resource):
+    """Ресурс для выхода из аккаунта через API"""
     def post(self):
+        """Выход из аккаунта"""
         check_authorization()
         logout_user()
         return jsonify({"success": "ok"})
 
 
 class UserResource(Resource):
+    """Ресурс для взаимодействия с пользователями через API"""
     def get(self, user_id):
+        """Получение пользователя"""
         args = get_user_parser.parser.parse_args()
         if current_user.is_authenticated and current_user.id == user_id:
             fields = ("id", "name", "surname", "nickname", "email",
                       "description", "avatar", "modified_date",
                       "is_moderator", "is_admin")
-        else:
+        else:  # Фильтрация полей по доступу к информации для сторонних пользователей
             fields = ("id", "nickname", "description", "avatar",
                       "is_moderator", "is_admin")
         fields = tuple(field for field in fields if field in args["get_field"])
@@ -62,6 +68,7 @@ class UserResource(Resource):
             return jsonify({"user": user})
 
     def put(self, user_id):
+        """Редактирование аккаунта"""
         args = put_user_parser.parser.parse_args()
         check_authorization()
         if current_user.id != user_id:
@@ -104,6 +111,7 @@ class UserResource(Resource):
             return jsonify({"success": "ok"})
 
     def delete(self, user_id):
+        """Удаление аккаунта"""
         args = delete_user_parser.parser.parse_args()
         check_authorization()
         if current_user.id != user_id:
@@ -118,7 +126,9 @@ class UserResource(Resource):
 
 
 class UsersListResource(Resource):
+    """Ресурс для взаимодействия с пользователями через API"""
     def post(self):
+        """Регистрация пользователя"""
         args = register_parser.parser.parse_args()
         user_data = {
             "name": args["name"],
@@ -155,6 +165,7 @@ class UsersListResource(Resource):
             return jsonify({"success": "ok"})
 
     def get(self):
+        """Получение списка пользователей"""
         args = get_user_parser.find_parser.parse_args()
         fields = tuple(field for field in ("id", "nickname", "description",
                                            "avatar", "is_moderator", "is_admin")

@@ -1,4 +1,7 @@
+{# Файл с макросами для других страниц #}
+
 {% macro avatar_filename(user) %}
+    {# Получение пути к аватару пользователя #}
     {% if user.avatar %}
         {{ url_for("static", filename=("img/avatars/" + user.avatar)) }}
     {% else %}
@@ -7,10 +10,12 @@
 {% endmacro %}
 
 {% macro datetime_to_string(dt) %}
+    {# Форматирование даты #}
     {{ dt.strftime("%d %b %Y в %H:%M") }}
 {% endmacro %}
 
 {% macro like_btn(likes_count, is_liked, url, redirect_url, is_disabled=False) %}
+    {# Кнопка лайка #}
     <a href="{{ url }}?redirect_url={{ redirect_url }}" class="btn
         {% if is_liked %}
             btn-success
@@ -23,11 +28,13 @@
 {% endmacro %}
 
 {% macro edit_btn(href) %}
+    {# Кнопка редактирования статьи/комментария #}
     <a href="{{ href }}"
        class="btn btn-outline-warning">Изменить</a>
 {% endmacro %}
 
 {% macro delete_btn(href, modal_id) %}
+    {# Кнопка удаления статьи/комментария #}
     <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
         Удалить
     </button>
@@ -50,6 +57,7 @@
 {% endmacro %}
 
 {% macro user_role_image(user) %}
+    {# Изображение около никнейма модератора/администратора сайта #}
     {% if user.is_admin %}
         <img src="{{ url_for('static', filename='img/admin_img.png') }}" alt="" width="16px" height="16px">
     {% elif user.is_moderator %}
@@ -58,6 +66,7 @@
 {% endmacro %}
 
 {% macro article_card(article, current_user, url="/", sorted_by="create_date") %}
+    {# Виджет статьи на главной странице/странице пользователя #}
     <div class="card article-card" id="articleCard{{ article.id }}">
         <div class="card-header">
             <h4 class="card-title">
@@ -96,6 +105,7 @@
 {% endmacro %}
 
 {% macro comment_card(comment, current_user, sorted_by="create_date") %}
+    {# Виджет комментария на странице статьи #}
     <div class="card comment-card" id="commentCard#{{ comment.id }}">
         <div class="card-header">
             <h5 class="card-title">
@@ -124,6 +134,7 @@
 {% endmacro %}
 
 {% macro user_card(user, sorted_by="create_date") %}
+    {# Виджет с краткой информацией о пользователе для страницы поиска пользователей #}
     <div class="card user-card">
         <div class="card-header">
             <h4 class="card-title">
@@ -144,6 +155,7 @@
 {% endmacro %}
 
 {% macro pagination_widget(page_index, max_page_index, page_links_count, link_format) %}
+    {# Виджет навигации по страницам на главной странице/странице пользователя #}
     <ul class="pagination" style="margin-top: 5px; margin-bottom: 5px;">
         {% if max_page_index <= page_links_count %}
             {% set min_link_index = 1 %}
@@ -193,6 +205,7 @@
 {% endmacro %}
 
 {% macro sorted_by_widget(url) %}
+   {# Виджет выбора метода сортировки статей #}
     <div class="btn-group" role="group">
         <a href="{{ url }}?sorted_by=create_date" class="btn btn-outline-primary">По дате создания</a>
         <a href="{{ url }}?sorted_by=likes_count" class="btn btn-outline-primary">По количеству лайков</a>

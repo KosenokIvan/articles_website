@@ -13,7 +13,9 @@ from tools.check_authorization import check_authorization
 
 
 class ArticleResource(Resource):
+    """Ресурс для взаимодействия со статьями через API"""
     def get(self, article_id):
+        """Получение статьи"""
         args = get_article_parser.parser.parse_args()
         try:
             article = ArticleModelWorker.get_article(article_id, args["get_field"])
@@ -28,6 +30,7 @@ class ArticleResource(Resource):
             return jsonify({"article": article})
 
     def put(self, article_id):
+        """Редактирование статьи"""
         args = put_article_parser.parser.parse_args()
         check_authorization()
         article_data = {}
@@ -49,6 +52,7 @@ class ArticleResource(Resource):
             return jsonify({"success": "ok"})
 
     def delete(self, article_id):
+        """Удаление статьи"""
         check_authorization()
         try:
             ArticleModelWorker.delete_article(article_id, current_user.id)
@@ -61,7 +65,9 @@ class ArticleResource(Resource):
 
 
 class ArticlesListResource(Resource):
+    """Ресурс для взаимодействия со статьями через API"""
     def post(self):
+        """Добавление статьи"""
         args = add_article_parser.parser.parse_args()
         check_authorization()
         article_data = {
@@ -78,6 +84,7 @@ class ArticlesListResource(Resource):
         return jsonify({"success": "ok"})
 
     def get(self):
+        """Получение списка статей"""
         args = get_article_parser.range_parser.parse_args()
         articles = ArticleModelWorker.get_all_articles(args["get_field"], args["author"],
                                                        args["sorted_by"],

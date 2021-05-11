@@ -1,3 +1,5 @@
+"""Парсер редактирования аккаунта пользователя через API"""
+
 from flask_restful import reqparse
 
 parser = reqparse.RequestParser()

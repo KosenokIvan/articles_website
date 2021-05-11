@@ -17,7 +17,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     email = sqlalchemy.Column(sqlalchemy.String(256), unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String(512))
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
-    avatar = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)
+    avatar = sqlalchemy.Column(sqlalchemy.String(256), nullable=True)  # Название файла
     description = sqlalchemy.Column(sqlalchemy.String(4096), nullable=True)
     is_moderator = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)  # Администратор наделён

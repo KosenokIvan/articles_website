@@ -15,7 +15,8 @@ class Article(SqlAlchemyBase, SerializerMixin):
     content = sqlalchemy.Column(sqlalchemy.String(4096), nullable=False)
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now)
     image = sqlalchemy.Column(sqlalchemy.String(256))
-    likes_count = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    likes_count = sqlalchemy.Column(sqlalchemy.Integer, default=0)  # Вынесено в отдельное поле
+    # для сортировки
     user = orm.relation("User")
     comments = orm.relation("Comment", back_populates="article", cascade="all,delete-orphan")
     likes = orm.relation("ArticleLike", back_populates="article", cascade="all,delete-orphan")

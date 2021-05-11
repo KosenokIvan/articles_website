@@ -1,3 +1,5 @@
+"""Парсер добавления комментария через API"""
+
 from flask_restful import reqparse
 
 parser = reqparse.RequestParser()

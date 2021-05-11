@@ -13,9 +13,11 @@ from model_workers.comment import CommentModelWorker
 
 
 class ArticleModelWorker:
+    """Класс для работы с моделью Article"""
     @staticmethod
     def get_article(article_id, fields=("id", "title")):
-        if not fields:
+        """Статья в JSON формате. Применяется в основном в API"""
+        if not fields:  # Предотвращение ситуации, в которой вернулись бы значения всех полей модели
             fields = ("id",)
         db_sess = db_session.create_session()
         article = db_sess.query(Article).get(article_id)
@@ -26,26 +28,28 @@ class ArticleModelWorker:
     @staticmethod
     def get_all_articles(fields=("id", "title"), author=None,
                          sorted_by="create_date", limit=None, offset=None):
+        """Список статей в JSON формате. Применяется в основном в API"""
         if not fields:
             fields = ("id",)
         db_sess = db_session.create_session()
         articles = db_sess.query(Article)
-        if author is not None:
+        if author is not None:  # Фильтрация по автору
             articles = articles.filter(Article.author == author)
-        if sorted_by == "create_date":
+        if sorted_by == "create_date":  # Сортировка
             articles = articles.order_by(Article.create_date.desc())
         else:
             articles = articles.order_by(
                 Article.likes_count.desc()
             ).order_by(Article.create_date.desc())
-        if offset is not None:
+        if offset is not None:  # Пропуск заданного числа статей в начале
             articles = articles.offset(offset)
-        if limit is not None:
+        if limit is not None:  # Ограничение на количество записей в ответе
             articles = articles.limit(limit)
         return [article.to_dict(only=fields) for article in articles]
 
     @staticmethod
     def new_article(article_data):
+        """Создание новой статьи"""
         db_sess = db_session.create_session()
         article = Article(
             title=article_data["title"],
@@ -62,6 +66,7 @@ class ArticleModelWorker:
 
     @staticmethod
     def edit_article(article_id, user_id, article_data):
+        """Изменение статьи"""
         db_sess = db_session.create_session()
         article = db_sess.query(Article).get(article_id)
         if not article:
@@ -83,6 +88,7 @@ class ArticleModelWorker:
 
     @staticmethod
     def delete_article(article_id, user_id):
+        """Удаление статьи"""
         db_sess = db_session.create_session()
         article = db_sess.query(Article).get(article_id)
         if not article:
@@ -101,6 +107,7 @@ class ArticleModelWorker:
 
     @staticmethod
     def update_likes_count(article_id, likes_delta):
+        """Обновление поля likes_count"""
         db_sess = db_session.create_session()
         article = db_sess.query(Article).get(article_id)
         if not article:

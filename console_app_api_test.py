@@ -1,3 +1,5 @@
+"""Программа для более удобного тестирования некоторых возможностей API"""
+
 from requests import get, post, put, delete, Session
 from tools.image_to_byte_array import image_to_byte_array
 
@@ -156,6 +158,7 @@ class TestApiApp(HttpWorker):
                     self.run = False
             else:
                 print("Unknown command")
+                TestApiApp.print_sep()
 
     def register(self, *args):
         result = self.register_(*args)

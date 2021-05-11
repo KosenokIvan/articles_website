@@ -530,7 +530,7 @@ def find_users():
                 users.insert(0, equal_nickname[0])
         users_list = [db_sess.query(User).get(user["id"]) for user in users]
     sorted_by = session.get("sorted_by", "create_date")
-    return render_template("find_users.html", title="Найти пользоваеля",
+    return render_template("find_users.html", title="Найти пользователя",
                            form=form, users_list=users_list, sorted_by=sorted_by)
 
 

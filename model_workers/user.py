@@ -5,7 +5,7 @@ from io import BytesIO
 from datetime import datetime
 from re import fullmatch
 from PIL import Image
-from flask_login import login_user
+from flask_login import login_user, current_user, logout_user
 from data.users import User
 from data import db_session
 from tools.errors import PasswordMismatchError, EmailAlreadyUseError, \
@@ -180,6 +180,8 @@ class UserModelWorker:
             raise IncorrectPasswordError
         if user.avatar is not None:
             os.remove(f"{USERS_AVATARS_DIR}/{user.avatar}")
+        if current_user.id == user_id:
+            logout_user()
         for like in user.likes:
             ArticleLikeModelWorker.delete_like({
                 "user_id": user_id,

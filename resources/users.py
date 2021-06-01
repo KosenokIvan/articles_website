@@ -7,7 +7,7 @@ from parsers import login_parser, register_parser, get_user_parser, \
 from tools.errors import UserNotFoundError, IncorrectPasswordError, PasswordMismatchError, \
     UserAlreadyExistError, EmailAlreadyUseError, IncorrectNicknameLengthError, \
     NicknameContainsInvalidCharactersError, IncorrectPasswordLengthError, \
-    NotSecurePasswordError, IncorrectImageError, IncorrectEmailFormatError
+    NotSecurePasswordError, IncorrectImageError, IncorrectEmailFormatError, ForbiddenToUserError
 from tools.hex_image_to_file_storage import hex_image_to_file_storage
 from tools.image_to_byte_array import image_to_byte_array
 from tools.constants import USERS_AVATARS_DIR
@@ -181,3 +181,27 @@ class UsersListResource(Resource):
                         f"{USERS_AVATARS_DIR}/{user['avatar']}"
                     ).hex()
         return jsonify({"users": users})
+
+
+class ModeratorResource(Resource):
+    def post(self, user_id):
+        check_authorization()
+        try:
+            UserModelWorker.make_moderator(user_id, current_user.id)
+        except UserNotFoundError:
+            fr_abort(404, message="User not found")
+        except ForbiddenToUserError:
+            fr_abort(403, message="Forbidden")
+        else:
+            return jsonify({"success": "ok"})
+
+    def delete(self, user_id):
+        check_authorization()
+        try:
+            UserModelWorker.make_simple_user(user_id, current_user.id)
+        except UserNotFoundError:
+            fr_abort(404, message="User not found")
+        except ForbiddenToUserError:
+            fr_abort(403, message="Forbidden")
+        else:
+            return jsonify({"success": "ok"})

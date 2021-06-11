@@ -603,59 +603,61 @@ ____
 
 ### Пример использования API
 
-    from io import BytesIO
-    from PIL import Image
-    from requests import get, post, put, delete
-    
+```python
+from io import BytesIO
+from PIL import Image
+from requests import get, post, put, delete
 
-    def image_to_byte_array(image_filename):
-        image = Image.open(image_filename)
-        image_byte_array = BytesIO()
-        image.save(image_byte_array, format="PNG")
-        return image_byte_array.getvalue()
 
-    
-    EMAIL = ...
-    PASSWORD = ...
-    NICKNAME = ...
-    AVATAR_FILENAME = ...
+def image_to_byte_array(image_filename):
+   image = Image.open(image_filename)
+   image_byte_array = BytesIO()
+   image.save(image_byte_array, format="PNG")
+   return image_byte_array.getvalue()
 
-    register_response = post("http://localhost:5000/api/users", json={
-        "name": "name",
-        "surname": "surname",
-        "nickname": NICKNAME,
-        "email": EMAIL,
-        "password": PASSWORD,
-        "password_again": PASSWORD,
-        "avatar": image_to_byte_array(AVATAR_FILENAME).hex()
-    })
-    print(register_response.json())
-    if not register_response:
-        exit()
 
-    get_id_response = get(f"http://localhost:5000/api/users?"
-                          f"nickame_search_string={NICKNAME}&get_field=id").json()
-    print(get_id_response)
-    if not get_id_response:
-        exit()
-    id = get_id_response["users"][0]["id"]
+EMAIL = ...
+PASSWORD = ...
+NICKNAME = ...
+AVATAR_FILENAME = ...
 
-    print(get(f"http://localhost:5000/api/user/{id}?get_field=email&get_field=description").json())
+register_response = post("http://localhost:5000/api/users", json={
+   "name": "name",
+   "surname": "surname",
+   "nickname": NICKNAME,
+   "email": EMAIL,
+   "password": PASSWORD,
+   "password_again": PASSWORD,
+   "avatar": image_to_byte_array(AVATAR_FILENAME).hex()
+})
+print(register_response.json())
+if not register_response:
+   exit()
 
-    login_response = post("http://localhost:5000/api/login", json={
-        "email": EMAIL,
-        "password": PASSWORD
-    })
-    print(login_response.json())
-    if not login_response:
-        exit()
+get_id_response = get(f"http://localhost:5000/api/users?"
+                      f"nickame_search_string={NICKNAME}&get_field=id").json()
+print(get_id_response)
+if not get_id_response:
+   exit()
+id_ = get_id_response["users"][0]["id"]
 
-    print(get(f"http://localhost:5000/api/user/{id}?get_field=email&get_field=description",
-              cookies=login_response.cookies).json())
+print(get(f"http://localhost:5000/api/user/{id_}?get_field=email&get_field=description").json())
 
-    print(delete(f"http://localhost:5000/api/user/{id}", json={
-        "password": PASSWORD
-    }).json())
-    print(delete(f"http://localhost:5000/api/user/{id}", json={
-        "password": PASSWORD
-    }, cookies=login_response.cookies).json())
+login_response = post("http://localhost:5000/api/login", json={
+   "email": EMAIL,
+   "password": PASSWORD
+})
+print(login_response.json())
+if not login_response:
+   exit()
+
+print(get(f"http://localhost:5000/api/user/{id_}?get_field=email&get_field=description",
+          cookies=login_response.cookies).json())
+
+print(delete(f"http://localhost:5000/api/user/{id_}", json={
+   "password": PASSWORD
+}).json())
+print(delete(f"http://localhost:5000/api/user/{id_}", json={
+   "password": PASSWORD
+}, cookies=login_response.cookies).json())
+```

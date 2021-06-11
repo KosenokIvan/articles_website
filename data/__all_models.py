@@ -1,1 +1,1 @@
-from . import users, articles, comments, likes
+from . import users, articles, comments, likes, images
